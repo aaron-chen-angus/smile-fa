@@ -339,3 +339,95 @@ legend { padding: 0 6px; color: var(--text-dim); }
 .flag--none { color: var(--text-dim); }
 .flag--border { color: #05121F; background: var(--amber); }
 .flag--sig { color: #fff; background: var(--red); }
+
+/* =========================================================================
+   S4 Result — redesigned (poster-inspired, clean)
+   ========================================================================= */
+.screen--result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  height: 100%;
+  overflow: auto;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: linear-gradient(90deg, #0C1B2E 0%, #10233A 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.result-header__brand { display: flex; align-items: baseline; gap: 14px; }
+.result-header__logo {
+  font-size: 28px; font-weight: 800; letter-spacing: 0.28em; color: var(--cyan);
+  text-shadow: 0 0 18px rgba(41, 182, 246, 0.45);
+}
+.result-header__sub { color: var(--text-dim); font-size: var(--fs-base); letter-spacing: 0.04em; }
+.result-header__org { color: var(--text); font-weight: 600; letter-spacing: 0.06em; }
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1.1fr;
+  gap: var(--gap);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.result-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+}
+.result-card--verdict { align-items: center; text-align: center; }
+.result-card__title { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); margin: 0; }
+
+/* Score ring */
+.score-ring { position: relative; width: 150px; height: 150px; }
+.score-ring svg { transform: rotate(-90deg); }
+.score-ring__track { fill: none; stroke: var(--panel-2); stroke-width: 10; }
+.score-ring__fill {
+  fill: none; stroke: var(--cyan); stroke-width: 10; stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease, stroke 0.4s ease;
+}
+.score-ring__label {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring__value { font-size: 40px; font-weight: 800; line-height: 1; }
+.score-ring__unit { font-size: 11px; letter-spacing: 0.12em; color: var(--text-dim); text-transform: uppercase; }
+
+.public-message { font-size: var(--fs-lg); margin: 0; }
+.affected-side { color: var(--text-dim); font-weight: 600; margin: 0; }
+
+/* Key metrics list */
+.key-metrics { list-style: none; margin: 0 0 8px; padding: 0; }
+.key-metric {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px;
+}
+.key-metric__label { color: var(--text-dim); }
+.key-metric__value { font-weight: 700; }
+.key-metric__value.is-border { color: var(--amber); }
+.key-metric__value.is-sig { color: var(--red); }
+
+/* Interpretation bullets */
+.interpretation { margin: 0 0 8px; padding-left: 1.1em; color: var(--text); }
+.interpretation li { margin-bottom: 6px; }
+
+.result-footer { color: var(--text-dim); font-size: 12px; text-align: center; margin: 0; }
+
+/* Clinician topbar (back + exports) */
+.clin-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.clin-topbar__actions { display: flex; gap: 8px; }
+
+/* Result screen stays landscape-only like the rest (portrait guard handles it). */
+@media (max-width: 1180px) {
+  .result-grid { grid-template-columns: 1fr; }
+}

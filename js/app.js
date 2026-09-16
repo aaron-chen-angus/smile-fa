@@ -138,6 +138,7 @@ function wireResultActions() {
 
   on('btn-repeat', () => location.reload());
   on('btn-clinician', () => showScreen('s5'));
+  on('btn-clin-back', () => showScreen('s4'));
   on('btn-save-baseline', async () => {
     if (!ctx.lastResult) return;
     const id = await saveSession(ctx.lastResult);
@@ -145,7 +146,12 @@ function wireResultActions() {
     alert(t('result.baseline') + ' ✓');
   });
 
-  // Export buttons live in the clinician view / history; wire if present.
+  // Clinician-view exports (operate on the current session result).
+  on('btn-export-json', () => ctx.lastResult && exportJSON(ctx.lastResult));
+  on('btn-export-csv', () => ctx.lastResult && exportMetricsCSV(ctx.lastResult));
+  on('btn-print', () => ctx.lastResult && printReport(ctx.lastResult));
+
+  // History (S6) actions.
   on('btn-export-all', async () => exportAll(await listSessions()));
   on('btn-delete-all', async () => {
     if (confirm(t('s6.deleteAll') + '?')) { await deleteAll(); renderHistory(); }

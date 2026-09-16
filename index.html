@@ -155,30 +155,72 @@
     </section>
 
     <!-- S4 Public result -->
-    <section id="s4-public" class="screen" data-screen="s4" aria-label="Result" hidden>
-      <div class="col col--left">
-        <div id="indicator" class="indicator" role="status">
-          <span class="indicator__dot" aria-hidden="true"></span>
-          <span id="indicator-label" class="indicator__label"></span>
+    <section id="s4-public" class="screen screen--result" data-screen="s4" aria-label="Result" hidden>
+      <!-- Branded header -->
+      <header class="result-header">
+        <div class="result-header__brand">
+          <span class="result-header__logo">SMILE</span>
+          <span class="result-header__sub" data-i18n="s0.title">Facial Asymmetry Screen</span>
         </div>
-        <p id="public-message" class="public-message"></p>
-        <p id="affected-side" class="affected-side"></p>
-      </div>
-      <div class="col col--center">
-        <div id="face-diagram" class="face-diagram" aria-label="Affected region diagram"></div>
-      </div>
-      <div class="col col--right">
-        <div class="result-actions">
+        <div class="result-header__org">Republic Polytechnic</div>
+      </header>
+
+      <div class="result-grid">
+        <!-- Left: result + score ring + affected side -->
+        <div class="result-card result-card--verdict">
+          <div id="indicator" class="indicator" role="status" data-state="green">
+            <span class="indicator__dot" aria-hidden="true"></span>
+            <span id="indicator-label" class="indicator__label"></span>
+          </div>
+          <div class="score-ring" aria-label="Asymmetry score">
+            <svg viewBox="0 0 120 120" width="150" height="150">
+              <circle class="score-ring__track" cx="60" cy="60" r="52" />
+              <circle id="score-ring-fill" class="score-ring__fill" cx="60" cy="60" r="52" />
+            </svg>
+            <div class="score-ring__label">
+              <span id="score-value" class="score-ring__value">0</span>
+              <span class="score-ring__unit" data-i18n="result.faiLabel">SMILE-FAI</span>
+            </div>
+          </div>
+          <p id="public-message" class="public-message"></p>
+          <p id="affected-side" class="affected-side"></p>
+        </div>
+
+        <!-- Centre: face diagram -->
+        <div class="result-card result-card--diagram">
+          <h3 class="result-card__title" data-i18n="result.regionTitle">Affected region</h3>
+          <div id="face-diagram" class="face-diagram" aria-label="Affected region diagram"></div>
+        </div>
+
+        <!-- Right: key metrics + interpretation + actions -->
+        <div class="result-card result-card--details">
+          <h3 class="result-card__title" data-i18n="result.keyMetrics">Key measurements</h3>
+          <ul id="key-metrics" class="key-metrics"></ul>
+
+          <h3 class="result-card__title" data-i18n="result.interpretation">Interpretation</h3>
+          <ul id="interpretation" class="interpretation"></ul>
+
           <p class="advice" data-i18n="result.995">If symptoms are sudden, call 995 now.</p>
-          <button id="btn-repeat" class="btn" type="button" data-i18n="result.repeat">Repeat test</button>
-          <button id="btn-save-baseline" class="btn" type="button" data-i18n="result.baseline">Save as baseline</button>
-          <button id="btn-clinician" class="btn btn--ghost" type="button" data-i18n="result.clinician">Clinician view</button>
+          <div class="result-actions">
+            <button id="btn-repeat" class="btn" type="button" data-i18n="result.repeat">Repeat test</button>
+            <button id="btn-save-baseline" class="btn" type="button" data-i18n="result.baseline">Save as baseline</button>
+            <button id="btn-clinician" class="btn btn--primary" type="button" data-i18n="result.clinician">Clinician view</button>
+          </div>
         </div>
       </div>
+      <p class="result-footer" data-i18n="result.disclaimer">Screening aid, not a diagnostic device. Research use only. Thresholds provisional.</p>
     </section>
 
     <!-- S5 Clinician view -->
     <section id="s5-clinician" class="screen screen--full" data-screen="s5" aria-label="Clinician view" hidden>
+      <div class="clin-topbar">
+        <button id="btn-clin-back" class="btn btn--ghost" type="button" data-i18n="clin.back">← Back to result</button>
+        <div class="clin-topbar__actions">
+          <button id="btn-export-json" class="btn" type="button" data-i18n="clin.exportJson">Export JSON</button>
+          <button id="btn-export-csv" class="btn" type="button" data-i18n="clin.exportCsv">Export CSV</button>
+          <button id="btn-print" class="btn" type="button" data-i18n="clin.print">Print report</button>
+        </div>
+      </div>
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" aria-selected="true" data-tab="summary" data-i18n="clin.summary">Summary</button>
         <button class="tab" role="tab" aria-selected="false" data-tab="metrics" data-i18n="clin.metrics">Metrics</button>

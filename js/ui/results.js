@@ -26,6 +26,9 @@ const PHASE_GROUPS = {
  * Render the public result screen.
  * @param {object} result analyzeSession output
  */
+/** Short state word shown next to the indicator dot. */
+const STATE_WORD = { green: 'Within range', amber: 'Borderline', red: 'Significant', unable: 'Unable to assess' };
+
 export function renderPublicResult(result) {
   const c = result.composites;
   const indicator = document.getElementById('indicator');
@@ -35,7 +38,8 @@ export function renderPublicResult(result) {
 
   const stateKey = c.C11_indicator; // green|amber|red|unable
   if (indicator) indicator.dataset.state = stateKey;
-  if (label) label.textContent = t(`result.${stateKey}`);
+  // Indicator label = short status word; message = the full sentence (no dup).
+  if (label) label.textContent = STATE_WORD[stateKey] || stateKey;
   if (message) message.textContent = t(`result.${stateKey}`);
 
   if (sideEl) {
@@ -48,7 +52,95 @@ export function renderPublicResult(result) {
     }
   }
 
+  renderScoreRing(c.C03_SMILE_FAI ?? 0, stateKey);
+  renderKeyMetrics(result);
+  renderInterpretation(result);
   renderFaceDiagram(c.C06_affected_side, c.C05_pattern);
+}
+
+/** Colour per indicator state (matches CSS tokens). */
+const STATE_COLOR = { green: '#34D399', amber: '#FBBF24', red: '#EF4444', unable: '#9FB4CC' };
+
+/**
+ * Animate the SMILE-FAI score ring (0–100, higher = more asymmetry).
+ * @param {number} score
+ * @param {string} stateKey
+ */
+export function renderScoreRing(score, stateKey) {
+  const fill = document.getElementById('score-ring-fill');
+  const value = document.getElementById('score-value');
+  const s = Math.max(0, Math.min(100, Math.round(score)));
+  if (value) value.textContent = String(s);
+  if (fill) {
+    const r = 52;
+    const circ = 2 * Math.PI * r;
+    fill.style.strokeDasharray = String(circ);
+    fill.style.strokeDashoffset = String(circ * (1 - s / 100));
+    fill.style.stroke = STATE_COLOR[stateKey] || '#29B6F6';
+  }
+}
+
+/** Format a metric value with unit, null-safe. */
+function fmtMetric(m, digits = 1) {
+  if (!m || m.value == null) return '—';
+  const v = typeof m.value === 'number' ? m.value.toFixed(digits) : m.value;
+  return `${v}${m.unit ? ' ' + m.unit : ''}`;
+}
+
+/** Format a ratio as a percentage symmetry figure. */
+function fmtRatioPct(m) {
+  if (!m || m.value == null) return '—';
+  return `${Math.round(m.value * 100)}%`;
+}
+
+/**
+ * Render the key-measurements list (public-friendly, poster style).
+ * @param {object} result
+ */
+export function renderKeyMetrics(result) {
+  const host = document.getElementById('key-metrics');
+  if (!host) return;
+  const m = result.metrics;
+  const c = result.composites;
+  const rows = [
+    ['Smile symmetry', fmtRatioPct(m.S02), m.S02 && m.S02.flag],
+    ['Smile angle', fmtMetric(m.S07), m.S07 && m.S07.flag],
+    ['Brow lift symmetry', fmtRatioPct(m.B02), m.B02 && m.B02.flag],
+    ['Eye closure symmetry', fmtRatioPct(m.E03), m.E03 && m.E03.flag],
+    ['Resting mouth droop', fmtMetric(m.R02), m.R02 && m.R02.flag],
+    ['Measurement quality', `${result.quality.Q17}/100`, null],
+  ];
+  host.innerHTML = rows.map(([label, val, flag]) => `
+    <li class="key-metric">
+      <span class="key-metric__label">${label}</span>
+      <span class="key-metric__value ${flag ? 'is-' + flag : ''}">${val}</span>
+    </li>`).join('');
+}
+
+/**
+ * Render plain-language interpretation bullets from the composites.
+ * @param {object} result
+ */
+export function renderInterpretation(result) {
+  const host = document.getElementById('interpretation');
+  if (!host) return;
+  const c = result.composites;
+  const bullets = [];
+  const patternText = {
+    none: 'No clear asymmetry pattern',
+    central: 'Lower-face-dominant pattern (forehead relatively spared)',
+    peripheral: 'Whole-hemiface pattern',
+    bilateral_or_indeterminate: 'Bilateral or indeterminate pattern',
+  };
+  bullets.push(patternText[c.C05_pattern] || c.C05_pattern);
+  if (c.C06_affected_side === 'L' || c.C06_affected_side === 'R') {
+    bullets.push(`Weaker side: ${t('result.side.' + c.C06_affected_side)}`);
+  }
+  bullets.push(`NIHSS-4 (CV estimate): ${c.C08_nihss4_cv} · CPSS face: ${c.C09_cpss_face_cv}`);
+  if (c.C11_indicator === 'red' || c.C11_indicator === 'amber') {
+    bullets.push('If new or sudden, seek medical attention now (call 995).');
+  }
+  host.innerHTML = bullets.map((b) => `<li>${b}</li>`).join('');
 }
 
 /**
