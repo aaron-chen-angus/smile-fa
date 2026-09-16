@@ -38,6 +38,9 @@ export function renderPublicResult(result) {
 
   const stateKey = c.C11_indicator; // green|amber|red|unable
   if (indicator) indicator.dataset.state = stateKey;
+  // Tint the verdict card to match the state (calm, low-alert-fatigue).
+  const verdictCard = document.querySelector('.result-card--verdict');
+  if (verdictCard) verdictCard.dataset.state = stateKey;
   // Indicator label = short status word; message = the full sentence (no dup).
   if (label) label.textContent = STATE_WORD[stateKey] || stateKey;
   if (message) message.textContent = t(`result.${stateKey}`);
@@ -151,25 +154,30 @@ export function renderInterpretation(result) {
 export function renderFaceDiagram(side, pattern) {
   const host = document.getElementById('face-diagram');
   if (!host) return;
-  const hl = (test) => (test ? 'rgba(239,68,68,0.55)' : 'rgba(41,182,246,0.15)');
+  const hl = (test) => (test ? 'rgba(248,113,113,0.42)' : 'rgba(56,189,248,0.10)');
   const lowerL = side === 'L';
   const lowerR = side === 'R';
   // Un-mirrored diagram: patient LEFT on image right.
   host.innerHTML = `
-    <svg viewBox="0 0 200 220" width="220" height="240" role="img" aria-label="Affected region">
-      <ellipse cx="100" cy="110" rx="70" ry="95" fill="#0C1B2E" stroke="#1D3350" stroke-width="2"/>
-      <!-- Right half (patient RIGHT = image left) -->
-      <path d="M100 20 A70 95 0 0 0 100 205 Z" fill="${hl(lowerR)}"/>
-      <!-- Left half (patient LEFT = image right) -->
-      <path d="M100 20 A70 95 0 0 1 100 205 Z" fill="${hl(lowerL)}"/>
-      <line x1="100" y1="18" x2="100" y2="207" stroke="#1D3350" stroke-dasharray="4 4"/>
-      <circle cx="72" cy="90" r="6" fill="#E6F0FA"/>
-      <circle cx="128" cy="90" r="6" fill="#E6F0FA"/>
-      <path d="M74 150 q26 20 52 0" fill="none" stroke="#E6F0FA" stroke-width="3"/>
-      <text x="150" y="115" fill="#9FB4CC" font-size="12">L</text>
-      <text x="42" y="115" fill="#9FB4CC" font-size="12">R</text>
+    <svg viewBox="0 0 200 230" width="230" height="264" role="img" aria-label="Affected region">
+      <defs>
+        <linearGradient id="faceFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#12273F"/><stop offset="1" stop-color="#0A1728"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="100" cy="112" rx="72" ry="96" fill="url(#faceFill)" stroke="#223B5C" stroke-width="2"/>
+      <path d="M100 18 A72 96 0 0 0 100 208 Z" fill="${hl(lowerR)}"/>
+      <path d="M100 18 A72 96 0 0 1 100 208 Z" fill="${hl(lowerL)}"/>
+      <line x1="100" y1="18" x2="100" y2="208" stroke="#223B5C" stroke-dasharray="3 5"/>
+      <circle cx="70" cy="92" r="5.5" fill="#EAF2FB"/>
+      <circle cx="130" cy="92" r="5.5" fill="#EAF2FB"/>
+      <path d="M74 116 q10 -6 20 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M106 116 q10 -6 20 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M72 152 q28 22 56 0" fill="none" stroke="#EAF2FB" stroke-width="3" stroke-linecap="round"/>
+      <text x="150" y="116" fill="#93A9C4" font-size="13" font-weight="600">L</text>
+      <text x="40" y="116" fill="#93A9C4" font-size="13" font-weight="600">R</text>
     </svg>
-    <p style="color:var(--text-dim);font-size:13px">${pattern && pattern !== 'none' ? 'Pattern: ' + pattern : ''}</p>
+    <p style="color:var(--text-dim);font-size:13px;margin:8px 0 0">${pattern && pattern !== 'none' ? 'Pattern: ' + prettyPattern(pattern) : 'No clear asymmetry pattern'}</p>
   `;
 }
 
@@ -203,20 +211,38 @@ function renderSummaryPanel(result) {
   const panel = document.querySelector('#s5-clinician .tab-panel[data-panel="summary"]');
   if (!panel) return;
   const c = result.composites;
-  const rows = [
-    ['SMILE-FAI (C03)', c.C03_SMILE_FAI],
-    ['Pattern (C05)', c.C05_pattern],
-    ['Affected side (C06)', c.C06_affected_side],
-    ['NIHSS-4 CV estimate (C08)', c.C08_nihss4_cv],
-    ['CPSS analogue (C09)', c.C09_cpss_face_cv],
-    ['Indicator (C11)', c.C11_indicator],
-    ['Measurement quality (Q17)', result.quality.Q17],
-  ];
-  panel.innerHTML =
-    `<table class="metric-table"><tbody>${
-      rows.map((r) => `<tr><td>${r[0]}</td><td><strong>${r[1]}</strong></td></tr>`).join('')
-    }</tbody></table>
-     <p style="color:var(--amber);font-size:13px">Provisional thresholds — research use only. CV-estimated analogue of NIHSS Item 4, not a validated score.</p>`;
+  const state = c.C11_indicator;
+  const faiClass = state === 'red' ? 'is-red' : state === 'amber' ? 'is-amber' : 'is-green';
+  const q17 = result.quality.Q17;
+  const q17Class = q17 >= 75 ? 'is-green' : q17 >= 60 ? 'is-amber' : 'is-red';
+
+  const card = (label, value, sub, opts = {}) => `
+    <div class="kpi-card ${opts.accent ? 'kpi-card--accent' : ''}">
+      <span class="kpi-card__label">${label}</span>
+      <span class="kpi-card__value ${opts.valueClass || ''}">${value}</span>
+      ${sub ? `<span class="kpi-card__sub">${sub}</span>` : ''}
+    </div>`;
+
+  const sideText = c.C06_affected_side === 'L' ? "Patient's LEFT"
+    : c.C06_affected_side === 'R' ? "Patient's RIGHT"
+    : c.C06_affected_side;
+
+  panel.innerHTML = `
+    <div class="kpi-grid">
+      ${card('SMILE-FAI', c.C03_SMILE_FAI, 'Headline index (0–100)', { accent: true, valueClass: faiClass })}
+      ${card('Indicator', capitalize(state), 'Traffic-light result', { valueClass: faiClass })}
+      ${card('Pattern', prettyPattern(c.C05_pattern), 'Central / peripheral', {})}
+      ${card('Affected side', sideText, 'Weaker hemiface', {})}
+      ${card('NIHSS-4 (CV est.)', c.C08_nihss4_cv, 'Analogue of Item 4', {})}
+      ${card('CPSS face', capitalize(c.C09_cpss_face_cv), 'Analogue', {})}
+      ${card('Quality (Q17)', `${q17}/100`, 'Measurement quality', { valueClass: q17Class })}
+    </div>
+    <div class="clin-caveat">Provisional thresholds — research use only. NIHSS-4 shown is a CV-estimated analogue of Item 4, not a validated clinical score.</div>`;
+}
+
+function capitalize(s) { return typeof s === 'string' && s.length ? s[0].toUpperCase() + s.slice(1) : s; }
+function prettyPattern(p) {
+  return { none: 'None', central: 'Central', peripheral: 'Peripheral', bilateral_or_indeterminate: 'Indeterminate' }[p] || p;
 }
 
 function renderMetricsPanel(result) {
@@ -224,26 +250,27 @@ function renderMetricsPanel(result) {
   if (!panel) return;
   const m = result.metrics;
   const fmt = (v) => (v == null ? '—' : (typeof v === 'number' ? v.toFixed(2) : v));
-  const flagCell = (f) => `<span class="flag flag--${f}">${f}</span>`;
   let html = '';
   for (const [group, ids] of Object.entries(PHASE_GROUPS)) {
-    const rowsHtml = ids.filter((id) => m[id]).map((id) => {
+    const cells = ids.filter((id) => m[id]).map((id) => {
       const r = m[id];
-      return `<tr>
-        <td>${id}</td>
-        <td>${fmt(r.value)}${r.unit ? ' ' + r.unit : ''}</td>
-        <td>${fmt(r.L)}</td><td>${fmt(r.R)}</td>
-        <td>${flagCell(r.flag)}</td>
-        <td>${r.reason || ''}</td>
-      </tr>`;
+      const lr = (r.L != null || r.R != null) ? `L ${fmt(r.L)} · R ${fmt(r.R)}` : '';
+      return `
+        <div class="metric-cell is-${r.flag}">
+          <span class="metric-cell__id">${id}${r.reason ? ' · ' + r.reason : ''}</span>
+          <span class="metric-cell__value">${fmt(r.value)}${r.unit ? ' ' + r.unit : ''}</span>
+          ${lr ? `<span class="metric-cell__lr">${lr}</span>` : ''}
+          ${r.flag !== 'none' ? `<span class="metric-cell__flag flag flag--${r.flag}">${r.flag}</span>` : ''}
+        </div>`;
     }).join('');
-    if (rowsHtml) {
-      html += `<h4>${group}</h4><table class="metric-table">
-        <thead><tr><th>ID</th><th>Value</th><th>L</th><th>R</th><th>Flag</th><th>Reason</th></tr></thead>
-        <tbody>${rowsHtml}</tbody></table>`;
+    if (cells) {
+      html += `<div class="metric-group">
+        <h4 class="metric-group__title">${group}</h4>
+        <div class="metric-cards">${cells}</div>
+      </div>`;
     }
   }
-  panel.innerHTML = html || '<p>No metrics computed.</p>';
+  panel.innerHTML = html || '<p style="color:var(--text-dim)">No metrics computed.</p>';
 }
 
 function renderEmotionPanel(emotion) {
@@ -253,12 +280,16 @@ function renderEmotionPanel(emotion) {
     panel.innerHTML = '<p style="color:var(--text-dim)">Expression stream unavailable for this session.</p>';
     return;
   }
-  let html = '<h4>Per-phase mean expression (X12)</h4><table class="metric-table"><thead><tr><th>Phase</th><th>Dominant</th></tr></thead><tbody>';
-  for (const [phase, means] of Object.entries(emotion.X12)) {
+  const items = Object.entries(emotion.X12).map(([phase, means]) => {
     const dom = Object.entries(means).sort((a, b) => b[1] - a[1])[0];
-    html += `<tr><td>${phase}</td><td>${dom ? dom[0] + ' (' + (dom[1] * 100).toFixed(0) + '%)' : '—'}</td></tr>`;
-  }
-  html += '</tbody></table>';
-  html += `<p style="color:var(--amber);font-size:13px">${t('clin.caveat')}</p>`;
-  panel.innerHTML = html;
+    return `<li>
+      <span class="phase">${phase}</span>
+      <span class="dom">${dom ? capitalize(dom[0]) : '—'}</span>
+      <span class="metric-cell__lr">${dom ? (dom[1] * 100).toFixed(0) + '%' : ''}</span>
+    </li>`;
+  }).join('');
+  panel.innerHTML = `
+    <h4 class="metric-group__title">Per-phase dominant expression</h4>
+    <ul class="emotion-list">${items}</ul>
+    <div class="clin-caveat">${t('clin.caveat')}</div>`;
 }
