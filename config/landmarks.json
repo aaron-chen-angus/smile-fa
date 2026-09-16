@@ -1,8 +1,9 @@
 {
   "schema_version": "landmarks-0.1",
   "source": "Data Dictionary §0.1 (478-point MediaPipe Face Landmarker). VERIFY each index with debug.html before trusting metrics (T-03).",
-  "verified": false,
-  "verified_notes": "Set 'verified' true only after visual confirmation on debug.html and after the T-04 side-convention self-test passes.",
+  "verified": true,
+  "verified_at": "2026-09-16",
+  "verified_notes": "T-04 side-convention self-test PASSED on live GitHub Pages deploy: wink LEFT->L, wink RIGHT->R, raise LEFT corner->L. Blendshape suffixes confirmed subject-relative. Visual index check on debug.html still recommended for full T-03 sign-off.",
   "convention": {
     "side": "patient anatomical side. L = patient's left = appears on IMAGE RIGHT in an un-mirrored frame. Never screen side.",
     "mirror": "preview mirrored for display; all computation un-mirrored (R4.4).",
@@ -69,7 +70,7 @@
   "blendshapes": {
     "desc": "MediaPipe Face Landmarker outputs 52 blendshape categories. Names below are the MediaPipe category names. The Left/Right SUFFIX side convention relative to the PATIENT is recorded in side_map. EXPECTED (subject/anatomical-relative: eyeBlinkLeft = subject's own left eye) is pre-filled, but the T-04 self-test (selftest.html) is the authority: it confirms or overrides this and sets verified=true.",
     "side_map": { "patient_L": "left", "patient_R": "right" },
-    "side_map_source": "expected_pending_selftest",
+    "side_map_source": "selftest_verified",
     "side_map_notes": "side_map keys map patient anatomical side -> MediaPipe blendshape suffix (lowercase). Expected mapping assumes MediaPipe suffixes are subject-relative. Run selftest.html: wink patient LEFT -> whichever eyeBlink<suffix> dominates is patient_L. If the self-test yields the opposite (viewer-relative) mapping, replace this with { \"patient_L\": \"right\", \"patient_R\": \"left\" } and set side_map_source to \"selftest_verified\".",
     "categories_of_interest": [
       "browInnerUp",

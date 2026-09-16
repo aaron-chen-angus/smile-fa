@@ -328,3 +328,14 @@ legend { padding: 0 6px; color: var(--text-dim); }
   .rotate-overlay__icon { animation: none; }
   * { transition: none !important; }
 }
+
+/* ---- Clinician metric tables + flags (T-20) --------------------------- */
+.metric-table { width: 100%; border-collapse: collapse; margin-bottom: var(--gap); font-size: var(--fs-sm); }
+.metric-table th, .metric-table td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.metric-table th { color: var(--text-dim); font-weight: 600; }
+.tab-panel h4 { margin: 12px 0 6px; color: var(--cyan); font-size: var(--fs-base); }
+
+.flag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; }
+.flag--none { color: var(--text-dim); }
+.flag--border { color: #05121F; background: var(--amber); }
+.flag--sig { color: #fff; background: var(--red); }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMILE-FA — Engine unit tests</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <style>
+    body { padding: 16px; font-size: 14px; }
+    #summary { font-size: 18px; margin: 12px 0; }
+    .ok { color: var(--green); }
+    .fail { color: var(--red); }
+    .suite { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 10px; background: var(--panel); }
+    .suite h3 { margin: 0 0 8px; font-size: 15px; }
+    .case { padding: 2px 0; }
+    .case .err { color: var(--amber); margin-left: 22px; font-family: monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1 style="font-size:22px">SMILE-FA engine unit tests (T-12)</h1>
+  <p style="color:var(--text-dim)">Synthetic-data tests for the pure-function engine (T-05–T-11). No camera, no network.</p>
+  <div id="summary">Running…</div>
+  <div id="results"></div>
+
+  <script type="module">
+    import { runAll } from './js/tests/harness.js';
+
+    // Register suites (each import self-registers via describe()).
+    await import('./js/tests/vec.test.js');
+    await import('./js/tests/filter.test.js');
+    await import('./js/tests/headframe.test.js');
+    await import('./js/tests/quality.test.js');
+    await import('./js/tests/frameMetrics.test.js');
+    await import('./js/tests/phaseMetrics.test.js');
+    await import('./js/tests/composites.test.js');
+
+    const { passed, failed, results } = await runAll();
+
+    const summary = document.getElementById('summary');
+    summary.innerHTML = failed === 0
+      ? `<span class="ok">✓ All ${passed} tests passed</span>`
+      : `<span class="fail">✗ ${failed} failed</span>, <span class="ok">${passed} passed</span>`;
+
+    const root = document.getElementById('results');
+    for (const suite of results) {
+      const div = document.createElement('div');
+      div.className = 'suite';
+      const failedInSuite = suite.cases.filter((c) => !c.ok).length;
+      div.innerHTML = `<h3>${suite.name} ${failedInSuite ? '<span class="fail">(' + failedInSuite + ' failed)</span>' : '<span class="ok">✓</span>'}</h3>`;
+      for (const c of suite.cases) {
+        const line = document.createElement('div');
+        line.className = 'case';
+        line.innerHTML = c.ok
+          ? `<span class="ok">✓</span> ${c.name}`
+          : `<span class="fail">✗ ${c.name}</span><div class="err">${c.error}</div>`;
+        div.appendChild(line);
+      }
+      root.appendChild(div);
+    }
+  </script>
+</body>
+</html>

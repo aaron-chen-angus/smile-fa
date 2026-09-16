@@ -1,0 +1,76 @@
+{
+  "protocol_version": "proto-0.1",
+  "source": "Clinical Basis & Protocol §2 (≈70 s guided sequence).",
+  "repeat_noncompliant_once": true,
+  "median_over_repetitions": true,
+  "phases": [
+    {
+      "id": "P1", "name": "rest", "i18n": "phase.rest",
+      "hold_ms": 5000, "repetitions": 1, "optional": false,
+      "driver": null,
+      "compliance": { "jawOpen_below": 0.15, "expression": "neutral" },
+      "clinical": "NIHSS rest, Sunnybrook resting symmetry"
+    },
+    {
+      "id": "P2", "name": "brow_raise", "i18n": "phase.brow",
+      "hold_ms": 3000, "relax_ms": 2000, "repetitions": 2, "optional": false,
+      "driver": "brow_excursion",
+      "compliance": { "blendshape": "browOuterUp", "mean_above": 0.35 },
+      "clinical": "Brow lift; forehead-sparing discriminator"
+    },
+    {
+      "id": "P3", "name": "eye_closure_gentle", "i18n": "phase.eyeGentle",
+      "hold_ms": 3000, "repetitions": 1, "optional": false,
+      "driver": "eye_closure",
+      "compliance": { "blendshape": "eyeBlink", "either_side_above": 0.5 },
+      "clinical": "Sunnybrook gentle eye closure"
+    },
+    {
+      "id": "P4", "name": "eye_closure_tight", "i18n": "phase.eyeTight",
+      "hold_ms": 3000, "repetitions": 1, "optional": false,
+      "driver": "eye_squeeze",
+      "compliance": { "blendshape": "eyeSquint", "max_above": 0.4 },
+      "clinical": "NIHSS close eyes tightly"
+    },
+    {
+      "id": "P5", "name": "smile_teeth", "i18n": "phase.smile",
+      "hold_ms": 3000, "relax_ms": 2000, "repetitions": 2, "optional": false,
+      "driver": "commissure_excursion",
+      "compliance": { "blendshape": "mouthSmile", "mean_above": 0.4 },
+      "clinical": "FAST / CPSS / NIHSS / Sunnybrook open-mouth smile"
+    },
+    {
+      "id": "P6", "name": "lip_pucker", "i18n": "phase.pucker",
+      "hold_ms": 3000, "repetitions": 1, "optional": false,
+      "driver": "pucker_medial_excursion",
+      "compliance": { "blendshape": "mouthPucker", "above": 0.4 },
+      "clinical": "Sunnybrook lip pucker"
+    },
+    {
+      "id": "P7", "name": "snarl", "i18n": "phase.snarl",
+      "hold_ms": 3000, "repetitions": 1, "optional": true,
+      "driver": "snarl_lip_elevation",
+      "compliance": { "blendshape": "noseSneer", "above": 0.3 },
+      "clinical": "Sunnybrook snarl"
+    },
+    {
+      "id": "P8", "name": "natural_smile", "i18n": "phase.natural",
+      "hold_ms": 4000, "repetitions": 1, "optional": true,
+      "driver": "commissure_excursion",
+      "compliance": { "expression_happy_above": 0.5 },
+      "clinical": "Emotional vs voluntary smile"
+    },
+    {
+      "id": "P9", "name": "rest_end", "i18n": "phase.restEnd",
+      "hold_ms": 3000, "repetitions": 1, "optional": false,
+      "driver": null,
+      "compliance": null,
+      "clinical": "Return to baseline; drift check"
+    }
+  ],
+  "setup": {
+    "id": "P0",
+    "max_ms": 30000,
+    "gate_hold_ms": 1500
+  }
+}
