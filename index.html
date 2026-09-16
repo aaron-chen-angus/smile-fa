@@ -192,19 +192,23 @@
           <div id="face-diagram" class="face-diagram" aria-label="Affected region diagram"></div>
         </div>
 
-        <!-- Right: key metrics + interpretation + actions -->
+        <!-- Right: 995 CTA (first) + key metrics + interpretation + actions -->
         <div class="result-card result-card--details">
+          <a href="tel:995" id="emergency-cta" class="emergency-cta" role="button">
+            <span class="emergency-cta__icon" aria-hidden="true">☎</span>
+            <span class="emergency-cta__text" data-i18n="result.995cta">If symptoms are sudden, call 995 now</span>
+          </a>
+
           <h3 class="result-card__title" data-i18n="result.keyMetrics">Key measurements</h3>
           <ul id="key-metrics" class="key-metrics"></ul>
 
           <h3 class="result-card__title" data-i18n="result.interpretation">Interpretation</h3>
           <ul id="interpretation" class="interpretation"></ul>
 
-          <p class="advice" data-i18n="result.995">If symptoms are sudden, call 995 now.</p>
           <div class="result-actions">
-            <button id="btn-repeat" class="btn" type="button" data-i18n="result.repeat">Repeat test</button>
-            <button id="btn-save-baseline" class="btn" type="button" data-i18n="result.baseline">Save as baseline</button>
-            <button id="btn-clinician" class="btn btn--primary" type="button" data-i18n="result.clinician">Clinician view</button>
+            <button id="btn-repeat" class="btn btn--primary" type="button" data-i18n="result.repeat">Repeat test</button>
+            <button id="btn-save-baseline" class="btn btn--outline" type="button" data-i18n="result.baseline">Save as baseline</button>
+            <button id="btn-clinician" class="btn-link" type="button" data-i18n="result.clinician">Clinician view →</button>
           </div>
         </div>
       </div>
@@ -230,9 +234,6 @@
         <div class="tab-panel" data-panel="summary"></div>
         <div class="tab-panel" data-panel="metrics" hidden></div>
         <div class="tab-panel" data-panel="emotion" hidden></div>
-      </div>
-      <div class="clin-caveat" data-i18n="clin.caveat">
-        Expression output is not felt emotion and can be biased by facial weakness. Research use only.
       </div>
     </section>
 

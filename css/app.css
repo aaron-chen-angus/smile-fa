@@ -447,7 +447,7 @@ legend { padding: 0 6px; color: var(--text-dim); }
 /* ---- Score ring ------------------------------------------------------- */
 .score-ring { position: relative; width: 176px; height: 176px; }
 .score-ring svg { transform: rotate(-90deg); }
-.score-ring__track { fill: none; stroke: var(--panel-2); stroke-width: 11; }
+.score-ring__track { fill: none; stroke: #1E3A5F; stroke-width: 11; }
 .score-ring__fill {
   fill: none; stroke: var(--cyan); stroke-width: 11; stroke-linecap: round;
   filter: drop-shadow(0 0 6px currentColor);
@@ -464,10 +464,37 @@ legend { padding: 0 6px; color: var(--text-dim); }
   background: var(--panel-2); border: 1px solid var(--line);
 }
 
-/* ---- Face diagram card ------------------------------------------------ */
-.result-card--diagram { align-items: center; }
-.face-diagram { display: grid; place-items: center; flex: 1 1 auto; width: 100%; }
-.face-diagram svg { filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); }
+/* ---- Emergency 995 call-to-action (top of right column) --------------- */
+.emergency-cta {
+  display: flex; align-items: center; gap: var(--s3);
+  width: 100%; padding: var(--s4) var(--s5);
+  background: #EF4444; color: #fff; text-decoration: none;
+  border-radius: var(--radius-sm); font-weight: var(--fw-bold); font-size: var(--fs-md);
+  box-shadow: 0 8px 22px rgba(239, 68, 68, 0.4);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: filter 0.15s ease, transform 0.08s ease;
+}
+.emergency-cta:hover { filter: brightness(1.06); }
+.emergency-cta:active { transform: translateY(1px); }
+.emergency-cta__icon { font-size: 24px; line-height: 1; }
+.emergency-cta__text { line-height: 1.3; }
+
+/* ---- Face diagram card (enlarged, fills column height) ---------------- */
+.result-card--diagram { align-items: stretch; }
+.face-diagram { display: flex; align-items: center; justify-content: center; flex: 1 1 auto; width: 100%; min-height: 0; }
+.face-diagram svg { filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); max-height: 100%; }
+
+/* ---- Result buttons (item 5) ------------------------------------------ */
+.btn--outline {
+  background: transparent; border: 1.5px solid var(--cyan); color: var(--cyan);
+}
+.btn--outline:hover:not(:disabled) { background: var(--cyan-tint); }
+.btn-link {
+  background: none; border: none; color: var(--text-dim); cursor: pointer;
+  font-size: var(--fs-sm); font-weight: var(--fw-medium); padding: var(--s2);
+  align-self: center; text-decoration: none;
+}
+.btn-link:hover { color: var(--cyan); }
 
 /* ---- Key metrics list ------------------------------------------------- */
 .key-metrics { list-style: none; margin: 0; padding: 0; }
@@ -538,7 +565,14 @@ legend { padding: 0 6px; color: var(--text-dim); }
   padding: var(--s5); box-shadow: var(--shadow-sm);
   display: flex; flex-direction: column; gap: var(--s2);
 }
-.kpi-card__label { font-size: var(--fs-xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
+.kpi-card__label { font-size: var(--fs-xs); letter-spacing: 0.08em; color: var(--text-dim); text-transform: none; }
+.kpi-card__subtitle { color: var(--text-mute); font-weight: var(--fw-normal); }
+/* Item 7: 4px coloured left-border by flag. */
+.kpi-card { border-left-width: 4px; }
+.kpi-card--flag-none  { border-left-color: var(--green); }
+.kpi-card--flag-border{ border-left-color: var(--amber); }
+.kpi-card--flag-sig   { border-left-color: var(--red); }
+.kpi-card--flag-grey  { border-left-color: var(--line); }
 .kpi-card__value { font-size: var(--fs-xl); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .kpi-card__sub { font-size: var(--fs-sm); color: var(--text-dim); }
 .kpi-card--accent { border-color: rgba(56,189,248,0.4); box-shadow: 0 0 0 1px rgba(56,189,248,0.15), var(--shadow-md); }
@@ -565,6 +599,32 @@ legend { padding: 0 6px; color: var(--text-dim); }
 .metric-cell__value { font-size: var(--fs-md); font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
 .metric-cell__lr { font-size: var(--fs-xs); color: var(--text-dim); }
 .metric-cell__flag { align-self: flex-start; margin-top: var(--s1); }
+
+/* Item 9: null metric shown as grey italic + info icon with tooltip. */
+.metric-cell__value--null { color: var(--text-mute); font-style: italic; font-weight: var(--fw-normal); display: inline-flex; align-items: center; gap: 6px; }
+.info-icon {
+  position: relative; cursor: help; color: var(--cyan); font-style: normal; font-size: 13px;
+  border-radius: 50%;
+}
+.info-icon::after {
+  content: attr(data-tip);
+  position: absolute; left: 50%; bottom: 140%; transform: translateX(-50%);
+  min-width: 180px; max-width: 240px; padding: 8px 10px;
+  background: #0A1728; color: var(--text); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); font-size: var(--fs-xs); font-style: normal; line-height: 1.4;
+  box-shadow: var(--shadow-md); z-index: 20;
+  opacity: 0; visibility: hidden; transition: opacity 0.15s ease; pointer-events: none;
+  white-space: normal; text-align: left;
+}
+.info-icon:hover::after, .info-icon:focus::after { opacity: 1; visibility: visible; }
+
+/* Time-series + emotion chart wrappers. */
+.ts-chart-wrap { position: relative; height: 220px; margin-bottom: var(--s4);
+  background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--radius-sm); padding: var(--s3); }
+.em-chart-wrap { position: relative; height: 260px; margin-bottom: var(--s3);
+  background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--radius-sm); padding: var(--s3); }
+.em-chart-wrap--tall { height: 300px; }
+.em-interpret-note { color: var(--amber); font-style: italic; font-size: var(--fs-sm); margin: var(--s3) 0 0; }
 
 /* Flag pills (reused) */
 .flag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: var(--fw-semibold); letter-spacing: 0.03em; }

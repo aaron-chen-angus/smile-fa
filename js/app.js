@@ -124,7 +124,8 @@ async function finishTest(buffers) {
   renderPublicResult(result);
   const emotionSummary = ctx.emotion ? ctx.emotion.summary() : null;
   ctx.lastEmotion = emotionSummary;
-  renderClinician(result, emotionSummary);
+  // Pass per-phase buffers so the clinician view can draw time-series charts.
+  renderClinician(result, emotionSummary, ctx.lastBuffers);
   showScreen('s4');
 }
 

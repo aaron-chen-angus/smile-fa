@@ -74,6 +74,7 @@
   "result.unable": "Could not measure reliably. Please repeat.",
   "result.side.L": "Patient's LEFT side",
   "result.side.R": "Patient's RIGHT side",
+  "result.995cta": "If symptoms are sudden, call 995 now",
   "result.faiLabel": "SMILE-FAI",
   "result.regionTitle": "Affected region",
   "result.keyMetrics": "Key measurements",

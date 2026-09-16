@@ -9,6 +9,7 @@
  */
 
 import { t } from '../i18n.js';
+import { renderClinicianCharts, resizeClinicianCharts } from './clinicianCharts.js';
 
 /** Map metric id → phase group for the clinician table. */
 const PHASE_GROUPS = {
@@ -129,19 +130,24 @@ export function renderInterpretation(result) {
   if (!host) return;
   const c = result.composites;
   const bullets = [];
-  const patternText = {
-    none: 'No clear asymmetry pattern',
-    central: 'Lower-face-dominant pattern (forehead relatively spared)',
-    peripheral: 'Whole-hemiface pattern',
-    bilateral_or_indeterminate: 'Bilateral or indeterminate pattern',
-  };
-  bullets.push(patternText[c.C05_pattern] || c.C05_pattern);
+
+  // Plain-English interpretation only (no NIHSS/CPSS jargon on the patient view).
+  if (c.C05_pattern === 'central') {
+    bullets.push('Lower-face weakness pattern detected');
+    bullets.push('Forehead relatively unaffected (suggests stroke pattern)');
+  } else if (c.C05_pattern === 'peripheral') {
+    bullets.push('Whole side of the face affected, including the forehead');
+  } else if (c.C05_pattern === 'bilateral_or_indeterminate') {
+    bullets.push('Pattern unclear — please repeat or seek advice');
+  } else {
+    bullets.push('No clear one-sided weakness pattern detected');
+  }
+
   if (c.C06_affected_side === 'L' || c.C06_affected_side === 'R') {
     bullets.push(`Weaker side: ${t('result.side.' + c.C06_affected_side)}`);
   }
-  bullets.push(`NIHSS-4 (CV estimate): ${c.C08_nihss4_cv} · CPSS face: ${c.C09_cpss_face_cv}`);
   if (c.C11_indicator === 'red' || c.C11_indicator === 'amber') {
-    bullets.push('If new or sudden, seek medical attention now (call 995).');
+    bullets.push('If new or sudden, seek medical attention now (call 995)');
   }
   host.innerHTML = bullets.map((b) => `<li>${b}</li>`).join('');
 }
@@ -154,30 +160,40 @@ export function renderInterpretation(result) {
 export function renderFaceDiagram(side, pattern) {
   const host = document.getElementById('face-diagram');
   if (!host) return;
-  const hl = (test) => (test ? 'rgba(248,113,113,0.42)' : 'rgba(56,189,248,0.10)');
-  const lowerL = side === 'L';
-  const lowerR = side === 'R';
-  // Un-mirrored diagram: patient LEFT on image right.
+  const AMBER = 'rgba(251, 191, 36, 0.40)'; // affected hemiface highlight
+  const CLEAR = 'rgba(56, 189, 248, 0.06)';
+  const affL = side === 'L';
+  const affR = side === 'R';
+  // Un-mirrored diagram: patient LEFT on the image RIGHT, patient RIGHT on image LEFT.
+  // "Weaker side →" arrow points toward the highlighted hemiface.
+  const weakerLabel = (affL || affR)
+    ? `<g>
+         <text x="100" y="30" fill="#FBBF24" font-size="13" font-weight="700" text-anchor="middle">Weaker side ${affL ? '→' : '←'}</text>
+       </g>`
+    : '';
   host.innerHTML = `
-    <svg viewBox="0 0 200 230" width="230" height="264" role="img" aria-label="Affected region">
+    <svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" role="img" aria-label="Affected region">
       <defs>
         <linearGradient id="faceFill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#12273F"/><stop offset="1" stop-color="#0A1728"/>
         </linearGradient>
       </defs>
-      <ellipse cx="100" cy="112" rx="72" ry="96" fill="url(#faceFill)" stroke="#223B5C" stroke-width="2"/>
-      <path d="M100 18 A72 96 0 0 0 100 208 Z" fill="${hl(lowerR)}"/>
-      <path d="M100 18 A72 96 0 0 1 100 208 Z" fill="${hl(lowerL)}"/>
-      <line x1="100" y1="18" x2="100" y2="208" stroke="#223B5C" stroke-dasharray="3 5"/>
-      <circle cx="70" cy="92" r="5.5" fill="#EAF2FB"/>
-      <circle cx="130" cy="92" r="5.5" fill="#EAF2FB"/>
-      <path d="M74 116 q10 -6 20 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M106 116 q10 -6 20 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M72 152 q28 22 56 0" fill="none" stroke="#EAF2FB" stroke-width="3" stroke-linecap="round"/>
-      <text x="150" y="116" fill="#93A9C4" font-size="13" font-weight="600">L</text>
-      <text x="40" y="116" fill="#93A9C4" font-size="13" font-weight="600">R</text>
+      ${weakerLabel}
+      <ellipse cx="100" cy="128" rx="78" ry="104" fill="url(#faceFill)" stroke="#223B5C" stroke-width="2"/>
+      <!-- Patient RIGHT half = image LEFT -->
+      <path d="M100 26 A78 104 0 0 0 100 232 Z" fill="${affR ? AMBER : CLEAR}"/>
+      <!-- Patient LEFT half = image RIGHT -->
+      <path d="M100 26 A78 104 0 0 1 100 232 Z" fill="${affL ? AMBER : CLEAR}"/>
+      <line x1="100" y1="26" x2="100" y2="232" stroke="#223B5C" stroke-dasharray="3 5"/>
+      <circle cx="66" cy="104" r="6" fill="#EAF2FB"/>
+      <circle cx="134" cy="104" r="6" fill="#EAF2FB"/>
+      <path d="M52 84 q14 -8 28 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M120 84 q14 -8 28 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M68 172 q32 24 64 0" fill="none" stroke="#EAF2FB" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- R/L labels anchored just outside the face outline -->
+      <text x="14" y="132" fill="#93A9C4" font-size="15" font-weight="700">R</text>
+      <text x="176" y="132" fill="#93A9C4" font-size="15" font-weight="700">L</text>
     </svg>
-    <p style="color:var(--text-dim);font-size:13px;margin:8px 0 0">${pattern && pattern !== 'none' ? 'Pattern: ' + prettyPattern(pattern) : 'No clear asymmetry pattern'}</p>
   `;
 }
 
@@ -188,11 +204,13 @@ export function renderFaceDiagram(side, pattern) {
  * @param {object} result analyzeSession output
  * @param {object} [emotion] emotion summary { X12, X13 }
  */
-export function renderClinician(result, emotion) {
+export function renderClinician(result, emotion, buffers) {
   wireTabs();
   renderSummaryPanel(result);
   renderMetricsPanel(result);
   renderEmotionPanel(emotion);
+  // Draw Chart.js charts after the panels' canvases exist in the DOM (items 11–13).
+  renderClinicianCharts(buffers, emotion);
 }
 
 function wireTabs() {
@@ -203,6 +221,8 @@ function wireTabs() {
       document.querySelectorAll('#s5-clinician .tab-panel').forEach((p) => {
         p.hidden = p.dataset.panel !== tab.dataset.tab;
       });
+      // Charts inside a now-visible tab need a resize (Chart.js can't size in display:none).
+      if (tab.dataset.tab === 'metrics' || tab.dataset.tab === 'emotion') resizeClinicianCharts();
     };
   });
 }
@@ -216,26 +236,31 @@ function renderSummaryPanel(result) {
   const q17 = result.quality.Q17;
   const q17Class = q17 >= 75 ? 'is-green' : q17 >= 60 ? 'is-amber' : 'is-red';
 
-  const card = (label, value, sub, opts = {}) => `
-    <div class="kpi-card ${opts.accent ? 'kpi-card--accent' : ''}">
-      <span class="kpi-card__label">${label}</span>
+  // Left-border flag class per card (item 7): green=none, amber=border, red=sig, grey=no flag.
+  const stateFlag = state === 'red' ? 'sig' : state === 'amber' ? 'border' : state === 'green' ? 'none' : 'grey';
+  const q17Flag = q17 >= 75 ? 'none' : q17 >= 60 ? 'border' : 'sig';
+
+  const card = (id, subtitle, value, sub, opts = {}) => `
+    <div class="kpi-card ${opts.accent ? 'kpi-card--accent' : ''} kpi-card--flag-${opts.flag || 'grey'}">
+      <span class="kpi-card__label">${id} <span class="kpi-card__subtitle">· ${subtitle}</span></span>
       <span class="kpi-card__value ${opts.valueClass || ''}">${value}</span>
       ${sub ? `<span class="kpi-card__sub">${sub}</span>` : ''}
     </div>`;
 
   const sideText = c.C06_affected_side === 'L' ? "Patient's LEFT"
     : c.C06_affected_side === 'R' ? "Patient's RIGHT"
-    : c.C06_affected_side;
+    : capitalize(c.C06_affected_side);
 
+  // Item 6 subtitles; item 7 flag borders. No bottom banner here (item 8 → single banner lives at page bottom in index.html).
   panel.innerHTML = `
     <div class="kpi-grid">
-      ${card('SMILE-FAI', c.C03_SMILE_FAI, 'Headline index (0–100)', { accent: true, valueClass: faiClass })}
-      ${card('Indicator', capitalize(state), 'Traffic-light result', { valueClass: faiClass })}
-      ${card('Pattern', prettyPattern(c.C05_pattern), 'Central / peripheral', {})}
-      ${card('Affected side', sideText, 'Weaker hemiface', {})}
-      ${card('NIHSS-4 (CV est.)', c.C08_nihss4_cv, 'Analogue of Item 4', {})}
-      ${card('CPSS face', capitalize(c.C09_cpss_face_cv), 'Analogue', {})}
-      ${card('Quality (Q17)', `${q17}/100`, 'Measurement quality', { valueClass: q17Class })}
+      ${card('C03', 'SMILE-FAI', c.C03_SMILE_FAI, 'Headline index (0–100)', { accent: true, valueClass: faiClass, flag: stateFlag })}
+      ${card('C11', 'Indicator', capitalize(state), 'Traffic-light result', { valueClass: faiClass, flag: stateFlag })}
+      ${card('C05', 'Pattern', prettyPattern(c.C05_pattern), 'Central / peripheral', { flag: c.C05_pattern === 'none' ? 'none' : 'grey' })}
+      ${card('C06', 'Affected side', sideText, 'Weaker hemiface', { flag: 'grey' })}
+      ${card('C08', 'NIHSS-4 analogue', c.C08_nihss4_cv, 'CV estimate of Item 4', { flag: c.C08_nihss4_cv >= 2 ? 'sig' : c.C08_nihss4_cv === 1 ? 'border' : 'none' })}
+      ${card('C09', 'CPSS analogue', capitalize(c.C09_cpss_face_cv), 'Face-droop analogue', { flag: c.C09_cpss_face_cv === 'abnormal' ? 'border' : 'none' })}
+      ${card('Q17', 'Measurement quality', `${q17}/100`, 'Overall capture quality', { valueClass: q17Class, flag: q17Flag })}
     </div>
     <div class="clin-caveat">Provisional thresholds — research use only. NIHSS-4 shown is a CV-estimated analogue of Item 4, not a validated clinical score.</div>`;
 }
@@ -244,6 +269,14 @@ function capitalize(s) { return typeof s === 'string' && s.length ? s[0].toUpper
 function prettyPattern(p) {
   return { none: 'None', central: 'Central', peripheral: 'Peripheral', bilateral_or_indeterminate: 'Indeterminate' }[p] || p;
 }
+
+/** Human-readable reason for a null metric (item 9 tooltip). */
+const REASON_TEXT = {
+  not_performed: 'Task not performed or not detected',
+  below_floor: 'Movement below the minimum measurable threshold',
+  low_quality: 'Insufficient measurement quality for this metric',
+  not_detected: 'Landmark not detected',
+};
 
 function renderMetricsPanel(result) {
   const panel = document.querySelector('#s5-clinician .tab-panel[data-panel="metrics"]');
@@ -254,13 +287,26 @@ function renderMetricsPanel(result) {
   for (const [group, ids] of Object.entries(PHASE_GROUPS)) {
     const cells = ids.filter((id) => m[id]).map((id) => {
       const r = m[id];
+      const flagClass = r.flag || 'none';
       const lr = (r.L != null || r.R != null) ? `L ${fmt(r.L)} · R ${fmt(r.R)}` : '';
+
+      // Item 9: null value → "Not measured" grey italic + ⓘ tooltip with reason.
+      let valueHtml;
+      if (r.value == null) {
+        const reason = r.reason && REASON_TEXT[r.reason] ? REASON_TEXT[r.reason] : 'Not measured';
+        valueHtml = `<span class="metric-cell__value metric-cell__value--null">Not measured
+          <span class="info-icon" tabindex="0" role="img" aria-label="${reason}" data-tip="${reason}${r.reason ? ' (' + r.reason + ')' : ''}">ⓘ</span>
+        </span>`;
+      } else {
+        valueHtml = `<span class="metric-cell__value">${fmt(r.value)}${r.unit ? ' ' + r.unit : ''}</span>`;
+      }
+
       return `
-        <div class="metric-cell is-${r.flag}">
-          <span class="metric-cell__id">${id}${r.reason ? ' · ' + r.reason : ''}</span>
-          <span class="metric-cell__value">${fmt(r.value)}${r.unit ? ' ' + r.unit : ''}</span>
+        <div class="metric-cell is-${flagClass}">
+          <span class="metric-cell__id">${id}</span>
+          ${valueHtml}
           ${lr ? `<span class="metric-cell__lr">${lr}</span>` : ''}
-          ${r.flag !== 'none' ? `<span class="metric-cell__flag flag flag--${r.flag}">${r.flag}</span>` : ''}
+          ${flagClass !== 'none' ? `<span class="metric-cell__flag flag flag--${flagClass}">${flagClass}</span>` : ''}
         </div>`;
     }).join('');
     if (cells) {
@@ -270,6 +316,15 @@ function renderMetricsPanel(result) {
       </div>`;
     }
   }
+
+  // Item 11: time-series section with two dual-line charts + phase bands.
+  html += `
+    <div class="metric-group">
+      <h4 class="metric-group__title">Time series (L vs R)</h4>
+      <div class="ts-chart-wrap"><canvas id="ts-commissure"></canvas></div>
+      <div class="ts-chart-wrap"><canvas id="ts-brow"></canvas></div>
+    </div>`;
+
   panel.innerHTML = html || '<p style="color:var(--text-dim)">No metrics computed.</p>';
 }
 
@@ -280,16 +335,14 @@ function renderEmotionPanel(emotion) {
     panel.innerHTML = '<p style="color:var(--text-dim)">Expression stream unavailable for this session.</p>';
     return;
   }
-  const items = Object.entries(emotion.X12).map(([phase, means]) => {
-    const dom = Object.entries(means).sort((a, b) => b[1] - a[1])[0];
-    return `<li>
-      <span class="phase">${phase}</span>
-      <span class="dom">${dom ? capitalize(dom[0]) : '—'}</span>
-      <span class="metric-cell__lr">${dom ? (dom[1] * 100).toFixed(0) + '%' : ''}</span>
-    </li>`;
-  }).join('');
+  // Item 12: 100% stacked bar per phase. Item 14: single banner below it.
+  // Item 13: multi-line timeline. Item 15: amber italic interpretive note.
   panel.innerHTML = `
-    <h4 class="metric-group__title">Per-phase dominant expression</h4>
-    <ul class="emotion-list">${items}</ul>
-    <div class="clin-caveat">${t('clin.caveat')}</div>`;
+    <h4 class="metric-group__title">Expression mix by phase</h4>
+    <div class="em-chart-wrap"><canvas id="em-stacked"></canvas></div>
+    <div class="clin-caveat">${t('clin.caveat')}</div>
+
+    <h4 class="metric-group__title">Expression probability timeline</h4>
+    <div class="em-chart-wrap em-chart-wrap--tall"><canvas id="em-timeline"></canvas></div>
+    <p class="em-interpret-note">Note: facial weakness may suppress “happy” probability during smile tasks — interpret expression output alongside asymmetry metrics.</p>`;
 }
