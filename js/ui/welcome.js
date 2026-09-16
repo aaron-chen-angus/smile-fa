@@ -54,23 +54,51 @@ function wireConsent(hooks) {
   const onset = document.getElementById('m10-onset');
   const cont = document.getElementById('btn-to-setup');
   const banner = document.getElementById('emergency-banner');
+  const nameInput = document.getElementById('participant-name');
+  const yobInput = document.getElementById('participant-yob');
+
+  // Clamp Year of Birth to a sensible range ending at the current year.
+  const currentYear = new Date().getFullYear();
+  if (yobInput) yobInput.max = String(currentYear);
+
+  /** Are all required participant fields valid? */
+  const participantValid = () => {
+    const name = (nameInput && nameInput.value.trim()) || '';
+    const gender = document.querySelector('input[name="gender"]:checked');
+    const yob = yobInput ? parseInt(yobInput.value, 10) : NaN;
+    const yobOk = Number.isInteger(yob) && yob >= 1900 && yob <= currentYear;
+    return name.length > 0 && !!gender && yobOk;
+  };
 
   const refresh = () => {
     state.meta.consent = !!(consent && consent.checked);
     state.meta.m10 = onset ? onset.value : 'none';
     state.meta.m11 = Array.from(document.querySelectorAll('input[name="m11"]:checked')).map((c) => c.value);
+
+    // Participant identity (name stored locally only; year of birth, not full DOB).
+    state.meta.participantName = (nameInput && nameInput.value.trim()) || '';
+    const gender = document.querySelector('input[name="gender"]:checked');
+    state.meta.gender = gender ? gender.value : null;
+    const yob = yobInput ? parseInt(yobInput.value, 10) : NaN;
+    state.meta.yearOfBirth = Number.isInteger(yob) ? yob : null;
+
     // 995 banner when sudden symptoms are reported now (R2.3).
     if (banner) banner.hidden = state.meta.m10 !== 'sudden_now';
-    if (cont) cont.disabled = !state.meta.consent;
+    // All required before proceeding: consent + name + gender + year of birth.
+    if (cont) cont.disabled = !(state.meta.consent && participantValid());
   };
 
   consent && consent.addEventListener('change', refresh);
   onset && onset.addEventListener('change', refresh);
+  nameInput && nameInput.addEventListener('input', refresh);
+  yobInput && yobInput.addEventListener('input', refresh);
+  document.querySelectorAll('input[name="gender"]').forEach((r) => r.addEventListener('change', refresh));
   document.querySelectorAll('input[name="m11"]').forEach((c) => c.addEventListener('change', refresh));
 
   if (cont) {
     cont.addEventListener('click', () => {
-      if (!state.meta.consent) return; // R2.2: no camera before consent
+      // R2.2: no camera before consent; all required fields must be valid.
+      if (!state.meta.consent || !participantValid()) return;
       showScreen('s2');
       hooks.onBeginSetup();
     });

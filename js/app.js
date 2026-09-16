@@ -66,6 +66,8 @@ async function startSetup() {
 
 /* ---- S3 test ---------------------------------------------------------- */
 async function startTest() {
+  // M03: capture test-start timestamp (ISO 8601, device local time + UTC offset).
+  state.meta.M03 = localIsoWithOffset();
   showScreen('s3');
   const video = document.getElementById('test-video');
   const overlayCanvas = document.getElementById('test-overlay');
@@ -130,7 +132,33 @@ async function finishTest(buffers) {
 }
 
 function buildMeta() {
-  return { mode: state.mode, lang: getLang(), m10: state.meta.m10, m11: state.meta.m11 };
+  return {
+    mode: state.mode,
+    lang: getLang(),
+    m10: state.meta.m10,
+    m11: state.meta.m11,
+    // Participant identity (name stored locally only; year of birth, not full DOB).
+    participantName: state.meta.participantName || '',
+    gender: state.meta.gender || null,
+    yearOfBirth: state.meta.yearOfBirth ?? null,
+    // M03 test-start timestamp (ISO 8601 + local UTC offset); fallback to now.
+    M03: state.meta.M03 || localIsoWithOffset(),
+  };
+}
+
+/**
+ * ISO 8601 timestamp in device LOCAL time with the UTC offset suffix
+ * (e.g. 2026-09-16T14:03:12+08:00). M03 per the Data Dictionary.
+ * @returns {string}
+ */
+function localIsoWithOffset() {
+  const d = new Date();
+  const pad = (n) => String(Math.floor(Math.abs(n))).padStart(2, '0');
+  const tzMin = -d.getTimezoneOffset(); // minutes east of UTC
+  const sign = tzMin >= 0 ? '+' : '-';
+  const off = `${sign}${pad(tzMin / 60)}:${pad(tzMin % 60)}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    + `T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${off}`;
 }
 
 /* ---- S4/S5/S6 actions ------------------------------------------------- */

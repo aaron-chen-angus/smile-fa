@@ -202,6 +202,8 @@ button, input, select { font: inherit; color: inherit; }
   display: flex; align-items: center; gap: 8px;
   min-height: var(--tap); cursor: pointer;
 }
+.radio-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 4px; }
+.radio-row .radio { min-height: 36px; }
 .check input, .radio input { width: 20px; height: 20px; accent-color: var(--cyan); }
 
 .disclaimer { color: var(--text-dim); }
@@ -553,6 +555,15 @@ legend { padding: 0 6px; color: var(--text-dim); }
   background: none; border: none; border-radius: 0; padding: var(--s4) 0 0; overflow: auto; flex: 1 1 auto;
 }
 .tab-panel[hidden] { display: none; }
+
+/* Participant subtitle row (clinician summary, item: display participant meta) */
+.participant-row {
+  display: flex; flex-wrap: wrap; gap: var(--s5);
+  font-size: var(--fs-xs); color: var(--text-mute);
+  padding: 0 0 var(--s3); margin-bottom: var(--s3);
+  border-bottom: 1px solid var(--line-soft);
+}
+.participant-row strong { color: var(--text-dim); font-weight: var(--fw-semibold); }
 
 /* KPI cards row (summary) */
 .kpi-grid {

@@ -251,8 +251,20 @@ function renderSummaryPanel(result) {
     : c.C06_affected_side === 'R' ? "Patient's RIGHT"
     : capitalize(c.C06_affected_side);
 
-  // Item 6 subtitles; item 7 flag borders. No bottom banner here (item 8 → single banner lives at page bottom in index.html).
+  // Participant subtitle row (clinician only — never shown on the patient screen).
+  const meta = result.meta || {};
+  const genderLabel = { male: 'Male', female: 'Female', prefer_not: 'Prefer not to say' }[meta.gender] || '—';
+  const participantRow = `
+    <div class="participant-row">
+      <span><strong>${escapeHtml(meta.participantName || '—')}</strong></span>
+      <span>${genderLabel}</span>
+      <span>YOB ${meta.yearOfBirth ?? '—'}</span>
+      <span>${meta.M03 || meta.timestamp || ''}</span>
+    </div>`;
+
+  // Item 6 subtitles; item 7 flag borders.
   panel.innerHTML = `
+    ${participantRow}
     <div class="kpi-grid">
       ${card('C03', 'SMILE-FAI', c.C03_SMILE_FAI, 'Headline index (0–100)', { accent: true, valueClass: faiClass, flag: stateFlag })}
       ${card('C11', 'Indicator', capitalize(state), 'Traffic-light result', { valueClass: faiClass, flag: stateFlag })}
@@ -266,6 +278,12 @@ function renderSummaryPanel(result) {
 }
 
 function capitalize(s) { return typeof s === 'string' && s.length ? s[0].toUpperCase() + s.slice(1) : s; }
+/** Escape user-provided text (e.g. participant name) before inserting as HTML. */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (ch) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
+  ));
+}
 function prettyPattern(p) {
   return { none: 'None', central: 'Central', peripheral: 'Peripheral', bilateral_or_indeterminate: 'Indeterminate' }[p] || p;
 }

@@ -21,6 +21,13 @@ function download(filename, text, mime = 'text/plain') {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+/** Escape user-provided text for safe insertion into the print HTML. */
+function escapeHtmlReport(s) {
+  return String(s).replace(/[&<>"']/g, (ch) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
+  ));
+}
+
 /** CSV-escape a value. */
 function csv(v) {
   if (v == null) return '';
@@ -42,7 +49,14 @@ export function exportJSON(result) {
  * @param {object} result
  */
 export function exportMetricsCSV(result) {
-  const rows = [['metric_id', 'value', 'unit', 'L', 'R', 'flag', 'reason']];
+  const meta = result.meta || {};
+  const rows = [];
+  // First four rows: participant identity + test timestamp (as requested).
+  rows.push(['participant_name', csv(meta.participantName || '')]);
+  rows.push(['gender', csv(meta.gender || '')]);
+  rows.push(['year_of_birth', csv(meta.yearOfBirth ?? '')]);
+  rows.push(['timestamp_M03', csv(meta.M03 || meta.timestamp || '')]);
+  rows.push(['metric_id', 'value', 'unit', 'L', 'R', 'flag', 'reason']);
   for (const [id, m] of Object.entries(result.metrics || {})) {
     rows.push([id, m.value, m.unit, m.L, m.R, m.flag, m.reason].map(csv));
   }
@@ -99,6 +113,10 @@ export function printReport(result) {
       .banner { color: #b00; font-weight: bold; margin-top: 8px; }
     </style></head><body>
     <h1>SMILE Facial Asymmetry Screen — Report</h1>
+    <div class="muted">Name: ${escapeHtmlReport((result.meta && result.meta.participantName) || '—')}
+      · Gender: ${(result.meta && result.meta.gender) || '—'}
+      · Year of birth: ${(result.meta && result.meta.yearOfBirth) ?? '—'}
+      · Test time (M03): ${(result.meta && (result.meta.M03 || result.meta.timestamp)) || ''}</div>
     <div class="muted">${result.meta ? result.meta.timestamp : ''} · thresholds ${result.meta ? result.meta.thresholds_version : ''} · Research use only</div>
     <div class="banner">If symptoms are sudden, call 995 now.</div>
     <table><tbody>

@@ -63,6 +63,21 @@
           <legend data-i18n="s1.symptoms">Symptoms &amp; history</legend>
           <label class="check"><input type="checkbox" id="m12-consent" /> <span data-i18n="s1.agree">I understand and consent (PDPA)</span></label>
 
+          <label class="field" for="participant-name" data-i18n="s1.name">Full name</label>
+          <input type="text" id="participant-name" class="select" required
+                 placeholder="Your full name" data-i18n-ph="s1.namePlaceholder" autocomplete="name" />
+
+          <span class="field" data-i18n="s1.gender">Gender</span>
+          <div class="radio-row" role="group" aria-label="Gender">
+            <label class="radio"><input type="radio" name="gender" value="male" /> <span data-i18n="s1.gender.male">Male</span></label>
+            <label class="radio"><input type="radio" name="gender" value="female" /> <span data-i18n="s1.gender.female">Female</span></label>
+            <label class="radio"><input type="radio" name="gender" value="prefer_not" /> <span data-i18n="s1.gender.na">Prefer not to say</span></label>
+          </div>
+
+          <label class="field" for="participant-yob" data-i18n="s1.yob">Year of birth</label>
+          <input type="number" id="participant-yob" class="select" required
+                 min="1900" max="2100" step="1" placeholder="e.g. 1985" data-i18n-ph="s1.yobPlaceholder" />
+
           <label class="field" for="m10-onset" data-i18n="s1.m10">Sudden symptoms now?</label>
           <select id="m10-onset" class="select">
             <option value="none" data-i18n="s1.m10.none">No</option>

@@ -54,12 +54,18 @@ export async function setLanguage(lang) {
   applyTranslations();
 }
 
-/** Apply current dict to all [data-i18n] elements. */
+/** Apply current dict to all [data-i18n] (textContent) and [data-i18n-ph]
+ *  (placeholder) elements. */
 export function applyTranslations(root = document) {
   root.querySelectorAll('[data-i18n]').forEach((el) => {
     const key = el.getAttribute('data-i18n');
     const val = t(key);
     if (val != null) el.textContent = val;
+  });
+  root.querySelectorAll('[data-i18n-ph]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-ph');
+    const val = t(key);
+    if (val != null) el.setAttribute('placeholder', val);
   });
 }
 
