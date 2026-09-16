@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SMILE — Facial Asymmetry Screen</title>
+  <meta name="description" content="SMILE Facial Asymmetry Screen — a screening aid, not a diagnostic device." />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <!-- Portrait / small-screen guard (R1.4) -->
+  <div id="rotate-overlay" class="rotate-overlay" role="alertdialog" aria-live="assertive">
+    <div class="rotate-overlay__card">
+      <div class="rotate-overlay__icon" aria-hidden="true">⟳</div>
+      <h2 data-i18n="rotate.title">Please rotate to landscape</h2>
+      <p data-i18n="rotate.body">This screen works in landscape on a tablet or desktop (minimum 1024×768).</p>
+    </div>
+  </div>
+
+  <!-- App root. Each screen is a <section>; the router toggles [hidden]. -->
+  <main id="app" class="app" aria-live="polite">
+
+    <!-- S0 Welcome -->
+    <section id="s0-welcome" class="screen" data-screen="s0" aria-label="Welcome">
+      <div class="col col--left">
+        <h2 data-i18n="s0.language">Language</h2>
+        <div id="language-select" class="language-select" role="group" aria-label="Language selection">
+          <button class="lang-btn" data-lang="en" type="button">English</button>
+          <button class="lang-btn" data-lang="zh" type="button">中文</button>
+          <button class="lang-btn" data-lang="ms" type="button">Bahasa Melayu</button>
+          <button class="lang-btn" data-lang="ta" type="button">தமிழ்</button>
+        </div>
+      </div>
+      <div class="col col--center col--center-hero">
+        <p class="brand-eyebrow" data-i18n="brand.eyebrow">SMILE</p>
+        <h1 class="brand-title" data-i18n="s0.title">Facial Asymmetry Screen</h1>
+        <p class="brand-sub" data-i18n="s0.subtitle">A screening aid — not a diagnostic device.</p>
+        <button id="btn-start" class="btn btn--primary btn--lg" type="button" data-i18n="s0.start">Start</button>
+        <div class="mode-select" role="group" aria-label="Mode">
+          <label class="radio"><input type="radio" name="mode" value="self_screen" checked /> <span data-i18n="s0.mode.self">Self-screen</span></label>
+          <label class="radio"><input type="radio" name="mode" value="assisted" /> <span data-i18n="s0.mode.assisted">Assisted</span></label>
+        </div>
+      </div>
+      <div class="col col--right">
+        <h2 data-i18n="s0.about">About</h2>
+        <p class="disclaimer" data-i18n="s0.disclaimer">
+          This tool measures facial movement asymmetry. It does not diagnose stroke.
+          If symptoms are sudden, call 995 now.
+        </p>
+      </div>
+    </section>
+
+    <!-- S1 Consent & symptoms -->
+    <section id="s1-consent" class="screen" data-screen="s1" aria-label="Consent and symptoms" hidden>
+      <div class="col col--left">
+        <h2 data-i18n="s1.consent">Consent</h2>
+        <p class="consent-text" data-i18n="s1.consentText">
+          Processing happens on this device. No video or images leave the browser.
+        </p>
+      </div>
+      <div class="col col--center">
+        <fieldset class="fieldset">
+          <legend data-i18n="s1.symptoms">Symptoms &amp; history</legend>
+          <label class="check"><input type="checkbox" id="m12-consent" /> <span data-i18n="s1.agree">I understand and consent (PDPA)</span></label>
+
+          <label class="field" for="m10-onset" data-i18n="s1.m10">Sudden symptoms now?</label>
+          <select id="m10-onset" class="select">
+            <option value="none" data-i18n="s1.m10.none">No</option>
+            <option value="sudden_now" data-i18n="s1.m10.sudden">Yes — sudden, now</option>
+            <option value="earlier" data-i18n="s1.m10.earlier">Earlier</option>
+            <option value="unknown" data-i18n="s1.m10.unknown">Unknown</option>
+          </select>
+
+          <fieldset class="confounders">
+            <legend data-i18n="s1.m11">Confounders</legend>
+            <label class="check"><input type="checkbox" name="m11" value="glasses" /> <span data-i18n="s1.m11.glasses">Glasses</span></label>
+            <label class="check"><input type="checkbox" name="m11" value="facial_hair" /> <span data-i18n="s1.m11.facialHair">Facial hair</span></label>
+            <label class="check"><input type="checkbox" name="m11" value="dentures_braces" /> <span data-i18n="s1.m11.dentures">Dentures / braces</span></label>
+            <label class="check"><input type="checkbox" name="m11" value="prev_palsy" /> <span data-i18n="s1.m11.prevPalsy">Previous facial palsy</span></label>
+            <label class="check"><input type="checkbox" name="m11" value="prev_stroke" /> <span data-i18n="s1.m11.prevStroke">Previous stroke</span></label>
+            <label class="check"><input type="checkbox" name="m11" value="botox_filler" /> <span data-i18n="s1.m11.botox">Recent Botox / filler</span></label>
+            <label class="check"><input type="checkbox" name="m11" value="facial_surgery" /> <span data-i18n="s1.m11.surgery">Facial surgery</span></label>
+          </fieldset>
+
+          <button id="btn-to-setup" class="btn btn--primary" type="button" disabled data-i18n="s1.continue">Continue</button>
+        </fieldset>
+      </div>
+      <div class="col col--right">
+        <div id="emergency-banner" class="emergency-banner" role="alert" hidden>
+          <strong data-i18n="emergency.title">Call 995 now</strong>
+          <p data-i18n="emergency.fast">FAST: Face drooping, Arm weakness, Speech difficulty — Time to call 995.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 Setup -->
+    <section id="s2-setup" class="screen" data-screen="s2" aria-label="Setup" hidden>
+      <div class="col col--left">
+        <h2 data-i18n="s2.checks">Quality checks</h2>
+        <ul id="gate-checklist" class="gate-list" aria-live="polite">
+          <li data-gate="face"><span class="gate-tick" aria-hidden="true">•</span> <span data-i18n="gate.face">Face detected</span></li>
+          <li data-gate="distance"><span class="gate-tick" aria-hidden="true">•</span> <span data-i18n="gate.distance">Distance</span></li>
+          <li data-gate="pose"><span class="gate-tick" aria-hidden="true">•</span> <span data-i18n="gate.pose">Head pose</span></li>
+          <li data-gate="lighting"><span class="gate-tick" aria-hidden="true">•</span> <span data-i18n="gate.lighting">Lighting level</span></li>
+          <li data-gate="lighting_balance"><span class="gate-tick" aria-hidden="true">•</span> <span data-i18n="gate.lightingBalance">Lighting balance</span></li>
+          <li data-gate="fps"><span class="gate-tick" aria-hidden="true">•</span> <span data-i18n="gate.fps">Frame rate</span></li>
+        </ul>
+      </div>
+      <div class="col col--center">
+        <div class="camera-stage">
+          <video id="setup-video" class="camera-video" playsinline muted></video>
+          <canvas id="setup-overlay" class="camera-overlay"></canvas>
+          <div class="guide-oval" aria-hidden="true"></div>
+        </div>
+        <button id="btn-begin-test" class="btn btn--primary" type="button" disabled data-i18n="s2.begin">Begin test</button>
+      </div>
+      <div class="col col--right">
+        <h2 data-i18n="s2.tips">Tips</h2>
+        <ul class="tips">
+          <li data-i18n="s2.tip.light">Face an even light source; avoid side lighting.</li>
+          <li data-i18n="s2.tip.glasses">Remove glasses if possible.</li>
+          <li data-i18n="s2.tip.fill">Fill the oval; sit upright.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- S3 Test -->
+    <section id="s3-test" class="screen" data-screen="s3" aria-label="Test" hidden>
+      <div class="col col--left">
+        <h2 data-i18n="s3.phases">Phases</h2>
+        <ol id="phase-list" class="phase-list"></ol>
+        <div class="quality-meter" aria-label="Measurement quality">
+          <span class="quality-meter__label" data-i18n="s3.quality">Quality</span>
+          <div class="quality-meter__bar"><div id="quality-fill" class="quality-meter__fill"></div></div>
+        </div>
+      </div>
+      <div class="col col--center">
+        <div class="camera-stage">
+          <video id="test-video" class="camera-video" playsinline muted></video>
+          <canvas id="test-overlay" class="camera-overlay"></canvas>
+          <div id="countdown-ring" class="countdown-ring" aria-hidden="true"></div>
+        </div>
+        <p id="instruction" class="instruction" aria-live="assertive"></p>
+        <img id="pictogram" class="pictogram" alt="" />
+      </div>
+      <div class="col col--right">
+        <h2 data-i18n="s3.emotion">Expression</h2>
+        <canvas id="emotion-chart" class="chart"></canvas>
+        <canvas id="commissure-chart" class="chart chart--mini"></canvas>
+        <canvas id="brow-chart" class="chart chart--mini"></canvas>
+      </div>
+    </section>
+
+    <!-- S4 Public result -->
+    <section id="s4-public" class="screen" data-screen="s4" aria-label="Result" hidden>
+      <div class="col col--left">
+        <div id="indicator" class="indicator" role="status">
+          <span class="indicator__dot" aria-hidden="true"></span>
+          <span id="indicator-label" class="indicator__label"></span>
+        </div>
+        <p id="public-message" class="public-message"></p>
+        <p id="affected-side" class="affected-side"></p>
+      </div>
+      <div class="col col--center">
+        <div id="face-diagram" class="face-diagram" aria-label="Affected region diagram"></div>
+      </div>
+      <div class="col col--right">
+        <div class="result-actions">
+          <p class="advice" data-i18n="result.995">If symptoms are sudden, call 995 now.</p>
+          <button id="btn-repeat" class="btn" type="button" data-i18n="result.repeat">Repeat test</button>
+          <button id="btn-save-baseline" class="btn" type="button" data-i18n="result.baseline">Save as baseline</button>
+          <button id="btn-clinician" class="btn btn--ghost" type="button" data-i18n="result.clinician">Clinician view</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- S5 Clinician view -->
+    <section id="s5-clinician" class="screen screen--full" data-screen="s5" aria-label="Clinician view" hidden>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-tab="summary" data-i18n="clin.summary">Summary</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="metrics" data-i18n="clin.metrics">Metrics</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="emotion" data-i18n="clin.emotion">Emotion</button>
+      </div>
+      <div class="tab-panels">
+        <div class="tab-panel" data-panel="summary"></div>
+        <div class="tab-panel" data-panel="metrics" hidden></div>
+        <div class="tab-panel" data-panel="emotion" hidden></div>
+      </div>
+      <div class="clin-caveat" data-i18n="clin.caveat">
+        Expression output is not felt emotion and can be biased by facial weakness. Research use only.
+      </div>
+    </section>
+
+    <!-- S6 History -->
+    <section id="s6-history" class="screen" data-screen="s6" aria-label="History" hidden>
+      <div class="col col--left">
+        <h2 data-i18n="s6.sessions">Sessions</h2>
+        <ul id="session-list" class="session-list"></ul>
+      </div>
+      <div class="col col--center">
+        <h2 data-i18n="s6.trends">Baseline trends</h2>
+        <canvas id="trend-chart" class="chart"></canvas>
+      </div>
+      <div class="col col--right">
+        <button id="btn-export-all" class="btn" type="button" data-i18n="s6.exportAll">Export all</button>
+        <button id="btn-delete-all" class="btn btn--danger" type="button" data-i18n="s6.deleteAll">Delete all data</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- App bootstraps as ES modules (no build step). app.js is the router; fleshed out in later UI tasks. -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMILE-FA — Side-convention self-test</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <style>
+    body { padding: 12px; }
+    .st-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--gap); align-items: start; }
+    .st-stage { position: relative; width: 100%; background: #000; border-radius: var(--radius); overflow: hidden; aspect-ratio: 16 / 9; }
+    /* Un-mirrored: patient LEFT on image right, matching debug.html and analysis. */
+    #st-video, #st-overlay { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .side-guide { position: absolute; top: 8px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px #000; }
+    .side-guide.left { left: 10px; }
+    .side-guide.right { right: 10px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin-bottom: var(--gap); }
+    #st-prompt { font-size: var(--fs-lg); text-align: center; min-height: 1.5em; margin: 10px 0; }
+    #st-results { margin: 0; padding-left: 1.1em; font-size: 14px; color: var(--text-dim); }
+    #st-results li { margin-bottom: 6px; }
+    pre { white-space: pre-wrap; font-size: 12px; color: var(--text-dim); margin: 0; }
+    .warn { color: var(--amber); }
+  </style>
+</head>
+<body>
+  <h1 style="font-size:24px">SMILE-FA — Side-convention self-test (T-04)</h1>
+  <p class="warn">
+    D2 / R10.2: the patient-side convention and MediaPipe blendshape L/R naming
+    must pass here before any engine metric is trusted. Winking your
+    <strong>LEFT</strong> eye must register patient <strong>LEFT</strong>.
+  </p>
+
+  <div class="st-grid">
+    <div>
+      <div class="st-stage">
+        <video id="st-video" playsinline muted></video>
+        <canvas id="st-overlay"></canvas>
+        <span class="side-guide left" aria-hidden="true">patient R →</span>
+        <span class="side-guide right" aria-hidden="true">← patient L</span>
+      </div>
+      <p id="st-prompt">—</p>
+      <button id="st-start" class="btn btn--primary" type="button" disabled>Start self-test</button>
+    </div>
+
+    <div>
+      <div class="panel"><strong>Status:</strong> <span id="st-status">Starting…</span></div>
+      <div class="panel">
+        <strong>Step results</strong>
+        <ul id="st-results"></ul>
+      </div>
+      <div class="panel">
+        <strong>Resolved config patch</strong>
+        <pre id="st-json">—</pre>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/selftest.js"></script>
+</body>
+</html>

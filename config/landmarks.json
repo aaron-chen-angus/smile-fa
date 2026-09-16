@@ -1,0 +1,90 @@
+{
+  "schema_version": "landmarks-0.1",
+  "source": "Data Dictionary §0.1 (478-point MediaPipe Face Landmarker). VERIFY each index with debug.html before trusting metrics (T-03).",
+  "verified": false,
+  "verified_notes": "Set 'verified' true only after visual confirmation on debug.html and after the T-04 side-convention self-test passes.",
+  "convention": {
+    "side": "patient anatomical side. L = patient's left = appears on IMAGE RIGHT in an un-mirrored frame. Never screen side.",
+    "mirror": "preview mirrored for display; all computation un-mirrored (R4.4).",
+    "iris_diameter_mm": 11.7
+  },
+
+  "points": {
+    "oral_commissure":        { "R": 61,  "L": 291, "desc": "cheilion / mouth corner" },
+    "upper_lip_outer_mid":    { "M": 0,   "desc": "upper lip outer midpoint" },
+    "upper_lip_inner_mid":    { "M": 13,  "desc": "upper lip inner midpoint" },
+    "lower_lip_outer_mid":    { "M": 17,  "desc": "lower lip outer midpoint" },
+    "lower_lip_inner_mid":    { "M": 14,  "desc": "lower lip inner midpoint" },
+    "upper_lip_peak":         { "R": 37,  "L": 267, "desc": "crista philtri" },
+    "eye_outer_canthus":      { "R": 33,  "L": 263, "desc": "exocanthion" },
+    "eye_inner_canthus":      { "R": 133, "L": 362, "desc": "endocanthion" },
+    "upper_eyelid_mid":       { "R": 159, "L": 386 },
+    "lower_eyelid_mid":       { "R": 145, "L": 374 },
+    "iris_centre":            { "R": 468, "L": 473 },
+    "brow_mid":               { "R": 105, "L": 334, "desc": "upper edge of brow" },
+    "brow_inner":             { "R": 107, "L": 336 },
+    "brow_outer":             { "R": 70,  "L": 300 },
+    "nasal_ala":              { "R": 129, "L": 358 },
+    "cheek_malar":            { "R": 116, "L": 345 },
+    "tragion_contour":        { "R": 234, "L": 454, "desc": "tragion-area face contour" }
+  },
+
+  "iris_ring": {
+    "R": [469, 470, 471, 472],
+    "L": [474, 475, 476, 477],
+    "desc": "diameter estimate: mean of opposite-pair distances 469-471 & 470-472 (R), 474-476 & 475-477 (L)"
+  },
+
+  "midline": {
+    "forehead_top": 10,
+    "glabella": 9,
+    "nasion": 168,
+    "pronasale": 1,
+    "subnasale": 2,
+    "menton": 152,
+    "upper_lip_outer_mid": 0,
+    "upper_lip_inner_mid": 13,
+    "lower_lip_outer_mid": 17,
+    "lower_lip_inner_mid": 14
+  },
+
+  "inner_lip_polygon": {
+    "desc": "dental-show polygon (S11); split by plane-projected midline into L/R.",
+    "R": [78, 191, 80, 81, 82, 95, 88, 178, 87],
+    "L": [308, 415, 310, 311, 312, 324, 318, 402, 317],
+    "midline": [13, 14]
+  },
+
+  "headframe_fit": {
+    "desc": "Stable, rarely paretic bilateral pairs + midline points for the midsagittal plane fit (§0.2). Mouth and brow are EXCLUDED (they are the pathology).",
+    "bilateral_pairs": [
+      { "R": 234, "L": 454, "name": "tragion" },
+      { "R": 116, "L": 345, "name": "malar" },
+      { "R": 129, "L": 358, "name": "ala" },
+      { "R": 133, "L": 362, "name": "inner_canthus" }
+    ],
+    "midline_points": [9, 168, 1, 2, 152]
+  },
+
+  "blendshapes": {
+    "desc": "MediaPipe Face Landmarker outputs 52 blendshape categories. Names below are the MediaPipe category names. The Left/Right SUFFIX side convention relative to the PATIENT is recorded in side_map. EXPECTED (subject/anatomical-relative: eyeBlinkLeft = subject's own left eye) is pre-filled, but the T-04 self-test (selftest.html) is the authority: it confirms or overrides this and sets verified=true.",
+    "side_map": { "patient_L": "left", "patient_R": "right" },
+    "side_map_source": "expected_pending_selftest",
+    "side_map_notes": "side_map keys map patient anatomical side -> MediaPipe blendshape suffix (lowercase). Expected mapping assumes MediaPipe suffixes are subject-relative. Run selftest.html: wink patient LEFT -> whichever eyeBlink<suffix> dominates is patient_L. If the self-test yields the opposite (viewer-relative) mapping, replace this with { \"patient_L\": \"right\", \"patient_R\": \"left\" } and set side_map_source to \"selftest_verified\".",
+    "categories_of_interest": [
+      "browInnerUp",
+      "browOuterUpLeft", "browOuterUpRight",
+      "browDownLeft", "browDownRight",
+      "eyeBlinkLeft", "eyeBlinkRight",
+      "eyeSquintLeft", "eyeSquintRight",
+      "cheekSquintLeft", "cheekSquintRight",
+      "noseSneerLeft", "noseSneerRight",
+      "mouthSmileLeft", "mouthSmileRight",
+      "mouthFrownLeft", "mouthFrownRight",
+      "mouthStretchLeft", "mouthStretchRight",
+      "mouthPucker",
+      "mouthFunnel",
+      "jawOpen"
+    ]
+  }
+}

@@ -1,0 +1,330 @@
+/* =========================================================================
+   SMILE-FA — app.css
+   Design tokens, landscape 3-column grid, portrait overlay, components.
+   Ref: design.md §4 (UI, landscape, 3-column). Colour never the only cue.
+   No build step: plain CSS with custom properties.
+   ========================================================================= */
+
+/* ---- Design tokens ---------------------------------------------------- */
+:root {
+  /* Palette (design.md §4 visual tokens) */
+  --bg:        #07111F;
+  --panel:     #0C1B2E;
+  --panel-2:   #10233A;
+  --line:      #1D3350;
+  --text:      #E6F0FA;
+  --text-dim:  #9FB4CC;
+
+  --cyan:  #29B6F6;
+  --green: #34D399;
+  --amber: #FBBF24;
+  --red:   #EF4444;
+
+  /* Typography */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
+          "Noto Sans SC", "Noto Sans Tamil", sans-serif;
+  --fs-base: 16px;      /* ≥16px on tablet (design.md §4) */
+  --fs-sm:   14px;
+  --fs-lg:   20px;
+  --fs-xl:   28px;
+  --fs-xxl:  40px;
+
+  /* Layout */
+  --gap: 16px;          /* 16px gaps (design.md §4) */
+  --radius: 12px;
+  --tap: 48px;          /* min tap target 48px (design.md §4) */
+  --col-left: 1.1fr;
+  --col-center: 1.6fr;
+  --col-right: 1.1fr;
+}
+
+/* ---- Reset / base ----------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { line-height: 1.2; margin: 0 0 0.5em; }
+h1 { font-size: var(--fs-xxl); }
+h2 { font-size: var(--fs-lg); color: var(--text); }
+p  { margin: 0 0 0.75em; }
+
+button, input, select { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* ---- App shell / screens --------------------------------------------- */
+.app {
+  height: 100vh;
+  height: 100dvh;
+  padding: var(--gap);
+}
+
+/* Router toggles [hidden]; the visible screen fills the viewport. */
+.screen[hidden] { display: none; }
+
+.screen {
+  height: 100%;
+  display: grid;
+  grid-template-columns: var(--col-left) var(--col-center) var(--col-right);
+  gap: var(--gap);
+  align-items: stretch;
+}
+
+/* Full-width screens (e.g. clinician tabs) use a single stacked column. */
+.screen--full {
+  grid-template-columns: 1fr;
+  grid-auto-rows: min-content 1fr min-content;
+}
+
+.col {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--gap);
+  overflow: auto;
+}
+
+.col--center-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+/* ---- Buttons ---------------------------------------------------------- */
+.btn {
+  min-height: var(--tap);
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover:not(:disabled) { background: var(--line); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn--primary {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #05121F;
+  font-weight: 600;
+}
+.btn--primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--cyan); }
+
+.btn--ghost { background: transparent; }
+.btn--danger { border-color: var(--red); color: var(--red); }
+.btn--lg { min-height: 56px; font-size: var(--fs-lg); padding: 0 32px; }
+
+/* ---- Welcome / branding ---------------------------------------------- */
+.brand-eyebrow {
+  letter-spacing: 0.35em;
+  color: var(--cyan);
+  font-weight: 700;
+  margin: 0;
+}
+.brand-title { font-size: var(--fs-xl); margin: 0; }
+.brand-sub { color: var(--text-dim); }
+
+.language-select, .mode-select { display: flex; flex-direction: column; gap: 8px; }
+.mode-select { flex-direction: row; gap: 16px; justify-content: center; }
+.lang-btn { min-height: var(--tap); text-align: left; padding-left: 16px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.lang-btn[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
+
+.radio, .check {
+  display: flex; align-items: center; gap: 8px;
+  min-height: var(--tap); cursor: pointer;
+}
+.check input, .radio input { width: 20px; height: 20px; accent-color: var(--cyan); }
+
+.disclaimer { color: var(--text-dim); }
+
+/* ---- Forms ------------------------------------------------------------ */
+.fieldset, .confounders {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--gap);
+  margin: 0 0 var(--gap);
+}
+legend { padding: 0 6px; color: var(--text-dim); }
+.field { display: block; margin-top: 12px; color: var(--text-dim); }
+.select {
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 6px;
+  padding: 0 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+/* ---- Emergency banner (M10 sudden_now) -------------------------------- */
+.emergency-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  padding: var(--gap);
+  color: var(--text);
+}
+.emergency-banner strong { color: var(--red); display: block; font-size: var(--fs-lg); }
+
+/* ---- Setup: gate checklist -------------------------------------------- */
+.gate-list { list-style: none; margin: 0; padding: 0; }
+.gate-list li { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.gate-tick { width: 1.4em; text-align: center; color: var(--text-dim); }
+/* State classes toggled by JS in later tasks; icon + colour (not colour alone). */
+.gate-list li.is-pass .gate-tick { color: var(--green); }
+.gate-list li.is-pass .gate-tick::before { content: "✓"; }
+.gate-list li.is-warn .gate-tick { color: var(--amber); }
+.gate-list li.is-warn .gate-tick::before { content: "!"; }
+.gate-list li.is-fail .gate-tick { color: var(--red); }
+.gate-list li.is-fail .gate-tick::before { content: "✕"; }
+.gate-list li.is-pass .gate-tick,
+.gate-list li.is-warn .gate-tick,
+.gate-list li.is-fail .gate-tick { font-weight: 700; }
+
+.tips { color: var(--text-dim); padding-left: 1.1em; }
+
+/* ---- Camera stage ----------------------------------------------------- */
+.camera-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.camera-video, .camera-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Preview is mirrored for the user; computation uses un-mirrored frames (R4.4). */
+.camera-video { transform: scaleX(-1); }
+.camera-overlay { transform: scaleX(-1); }
+
+.guide-oval {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 46%;
+  height: 82%;
+  border: 3px dashed rgba(41, 182, 246, 0.8);
+  border-radius: 50% / 42%;
+  pointer-events: none;
+}
+
+.countdown-ring {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 4px solid var(--cyan);
+  display: grid; place-items: center;
+  font-weight: 700;
+  background: rgba(7, 17, 31, 0.55);
+}
+
+.instruction { font-size: var(--fs-lg); text-align: center; margin-top: 12px; min-height: 1.5em; }
+.pictogram { display: block; margin: 8px auto 0; max-height: 96px; }
+
+/* ---- Test: phase list + quality meter --------------------------------- */
+.phase-list { padding-left: 1.2em; margin: 0 0 var(--gap); }
+.phase-list li { min-height: 36px; color: var(--text-dim); }
+.phase-list li.is-active { color: var(--text); font-weight: 600; }
+.phase-list li.is-done { color: var(--green); }
+
+.quality-meter { margin-top: var(--gap); }
+.quality-meter__label { font-size: var(--fs-sm); color: var(--text-dim); }
+.quality-meter__bar {
+  height: 12px; border-radius: 999px; background: var(--panel-2);
+  border: 1px solid var(--line); overflow: hidden; margin-top: 6px;
+}
+.quality-meter__fill { height: 100%; width: 0%; background: var(--green); transition: width 0.3s ease; }
+
+/* ---- Charts ----------------------------------------------------------- */
+.chart { width: 100%; height: 160px; margin-bottom: var(--gap); }
+.chart--mini { height: 80px; }
+
+/* ---- Results ---------------------------------------------------------- */
+.indicator { display: flex; align-items: center; gap: 12px; font-size: var(--fs-lg); }
+.indicator__dot { width: 22px; height: 22px; border-radius: 50%; background: var(--text-dim); }
+/* Indicator state via data-state; label text also present (not colour alone). */
+.indicator[data-state="green"] .indicator__dot { background: var(--green); }
+.indicator[data-state="amber"] .indicator__dot { background: var(--amber); }
+.indicator[data-state="red"]   .indicator__dot { background: var(--red); }
+.indicator[data-state="unable"] .indicator__dot { background: var(--text-dim); }
+
+.public-message { font-size: var(--fs-lg); }
+.affected-side { color: var(--text-dim); }
+.advice { color: var(--amber); font-weight: 600; }
+.result-actions { display: flex; flex-direction: column; gap: 12px; }
+.face-diagram { display: grid; place-items: center; height: 100%; min-height: 240px; color: var(--text-dim); }
+
+/* ---- Clinician tabs --------------------------------------------------- */
+.tabs { display: flex; gap: 8px; }
+.tab {
+  min-height: var(--tap); padding: 0 18px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-bottom: none; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer;
+}
+.tab[aria-selected="true"] { background: var(--panel-2); color: var(--cyan); }
+.tab-panels { background: var(--panel-2); border: 1px solid var(--line); border-radius: 0 var(--radius) var(--radius); padding: var(--gap); overflow: auto; }
+.tab-panel[hidden] { display: none; }
+.clin-caveat { margin-top: var(--gap); color: var(--amber); font-size: var(--fs-sm); }
+
+/* ---- History ---------------------------------------------------------- */
+.session-list { list-style: none; margin: 0; padding: 0; }
+.session-list li { min-height: var(--tap); border-bottom: 1px solid var(--line); display: flex; align-items: center; }
+
+/* ---- Portrait / small-screen overlay (R1.4) --------------------------- */
+.rotate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  place-items: center;
+  padding: var(--gap);
+  display: none; /* hidden by default; shown only in portrait / below min width */
+}
+.rotate-overlay__card { text-align: center; max-width: 420px; }
+.rotate-overlay__icon { font-size: 64px; color: var(--cyan); animation: rotate-hint 2s ease-in-out infinite; }
+
+@keyframes rotate-hint {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(90deg); }
+}
+
+/* Show the overlay in portrait OR below the landscape minimum (1024×768).
+   R1: usable in landscape on desktop (≥1280×720) and tablet (≥1024×768).
+   Pure CSS guard — no JS needed, so it works before scripts load. */
+@media (orientation: portrait), (max-width: 1023px) {
+  .rotate-overlay { display: grid; }
+  .app { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotate-overlay__icon { animation: none; }
+  * { transition: none !important; }
+}
