@@ -561,6 +561,34 @@ N01_value, N01_L, N01_R, N01_flag, N02_value, N02_L, N02_R, N02_flag
 
 **Setup summary.** Create a Google Sheet with a tab named `Results`; add an Apps Script `doPost` Web App that appends rows and auto-writes the header on first run; deploy as a Web App with access set to *Anyone*; paste the `/exec` URL into `config/integrations.json` and set `enabled: true`.
 
+### 4.12 R Shiny analytics dashboard
+
+A companion **R Shiny dashboard** provides the live visualisation layer for the data captured by the app. It reads from the same Google Sheet that the app writes to (§4.11) and refreshes as new assessments arrive, so results appear in the dashboard shortly after each test completes.
+
+- **Dashboard URL:** https://smile-rp.shinyapps.io/SMILE-FA/
+
+**End-to-end data flow.**
+
+```
+Browser app (assessment)
+   → js/data/sheets.js POST (on consent)
+      → Apps Script Web App (doPost)
+         → Google Sheet "Results" tab (one row per assessment)
+            → R Shiny dashboard (reads the sheet, refreshes live)
+```
+
+**What it visualises.** The dashboard works from the flat per-assessment rows defined in the §4.11 header, so it can present any of the transmitted fields, including:
+
+- **Composite scores** — SMILE-FAI (C03), UFAI (C01), LFAI (C02), lower/upper ratio (C04) across sessions.
+- **Screening outputs** — indicator distribution (C11 green/amber/red/unable), pattern mix (C05 central/peripheral/bilateral/none), affected side (C06), and the CV-estimated NIHSS-4 analogue (C08) / CPSS analogue (C09).
+- **Per-metric detail** — the R/B/E/S/P/N metric `value`, `L`, `R` and `flag` columns (e.g. smile excursion ratio S02, brow excursion ratio B02, resting commissure height difference R02), with flag (`none`/`border`/`sig`) highlighting.
+- **Measurement quality** — Q17 across the cohort, useful for spotting low-quality captures.
+- **Cohort descriptors** — gender and year of birth (de-identified), test timestamp (M03), mode, language, reported symptom onset (M10) and confounders (M11).
+
+**Privacy.** The dashboard only shows what the app is configured to transmit (§4.11). With `sendParticipantName: false` (the default), no participant names reach the sheet or the dashboard; only de-identified fields are available. Access to the dashboard should be restricted in line with the study's ethics/PDPA approval.
+
+**Scope note.** The dashboard consumes the same summary row per assessment that the sheet stores. Frame-level raw time series (T-series) and the full emotion stream are not part of the transmitted row by default, so the dashboard visualises session-level metrics and composites rather than per-frame traces unless those fields are added to the transmission and header.
+
 ### 4.8 Browser and device support
 
 | Browser | Min version | Notes |
