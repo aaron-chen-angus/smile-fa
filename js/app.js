@@ -23,6 +23,7 @@ import {
   setBaseline, getBaselineId, baselineChangeZ,
 } from './data/store.js';
 import { exportJSON, exportMetricsCSV, exportTimeseriesCSV, printReport, exportAll } from './data/export.js';
+import { sendToGoogleSheet } from './data/sheets.js';
 
 /** Shared app context. */
 const ctx = {
@@ -129,6 +130,10 @@ async function finishTest(buffers) {
   // Pass per-phase buffers so the clinician view can draw time-series charts.
   renderClinician(result, emotionSummary, ctx.lastBuffers);
   showScreen('s4');
+
+  // Optional: send the result to a Google Sheet (opt-in via config/integrations.json).
+  // Fails silently so it never blocks the result screen.
+  sendToGoogleSheet(result, ctx.cfg);
 }
 
 function buildMeta() {

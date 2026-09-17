@@ -15,11 +15,15 @@ let cache = null;
  */
 export async function loadConfigs() {
   if (cache) return cache;
-  const [landmarks, thresholds, protocol] = await Promise.all([
+  const [landmarks, thresholds, protocol, integrations] = await Promise.all([
     fetch('config/landmarks.json', { cache: 'no-store' }).then((r) => r.json()),
     fetch('config/thresholds.json', { cache: 'no-store' }).then((r) => r.json()),
     fetch('config/protocol.json', { cache: 'no-store' }).then((r) => r.json()),
+    // Optional integrations config (Google Sheets etc.); tolerate absence.
+    fetch('config/integrations.json', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null),
   ]);
-  cache = { landmarks, thresholds, protocol };
+  cache = { landmarks, thresholds, protocol, integrations };
   return cache;
 }

@@ -1,0 +1,13 @@
+{
+  "integrations_version": "int-0.1",
+  "google_sheets": {
+    "enabled": true,
+    "webAppUrl": "https://script.google.com/macros/s/AKfycbwk7sChkxecx7uIVv8fyQv8v84cfN5WBddnTYwrBTUEtM8m-oPaL9dYYI4Q0L2VuTmgdg/exec",
+    "sendParticipantName": false,
+    "notes": [
+      "Set enabled=true and paste the Apps Script Web App /exec URL into webAppUrl to send results to Google Sheets after each assessment.",
+      "PRIVACY: enabling this transmits session data off-device. Update the consent text and README §4.7 accordingly.",
+      "sendParticipantName=false sends the pseudonymous fields only (recommended). Set true only if consented to store names in the sheet."
+    ]
+  }
+}
