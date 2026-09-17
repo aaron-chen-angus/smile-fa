@@ -17,6 +17,7 @@
   "s1.consentText": "Processing happens on this device. No video or images leave the browser.",
   "s1.symptoms": "Symptoms & history",
   "s1.agree": "I understand and consent (PDPA)",
+  "s1.dataShare": "I consent to my de-identified results being sent to a secure research spreadsheet",
   "s1.name": "Full name",
   "s1.namePlaceholder": "Your full name",
   "s1.gender": "Gender",

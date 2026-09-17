@@ -65,6 +65,7 @@ export function analyzeSession(buffers, cfg, meta = {}) {
       yearOfBirth: meta.yearOfBirth ?? null,           // year only — never full DOB
       M03: meta.M03 ?? new Date().toISOString(),        // test-start, ISO 8601 + offset
       timestamp: meta.M03 ?? new Date().toISOString(),  // alias kept for existing consumers
+      consentDataShare: meta.consentDataShare === true, // gates off-device sending
       thresholds_version: thr.thresholds_version,
       mode: meta.mode ?? 'self_screen',
       lang: meta.lang ?? 'en',

@@ -56,6 +56,7 @@ function wireConsent(hooks) {
   const banner = document.getElementById('emergency-banner');
   const nameInput = document.getElementById('participant-name');
   const yobInput = document.getElementById('participant-yob');
+  const dataShare = document.getElementById('consent-datashare');
 
   // Clamp Year of Birth to a sensible range ending at the current year.
   const currentYear = new Date().getFullYear();
@@ -75,6 +76,10 @@ function wireConsent(hooks) {
     state.meta.m10 = onset ? onset.value : 'none';
     state.meta.m11 = Array.from(document.querySelectorAll('input[name="m11"]:checked')).map((c) => c.value);
 
+    // Off-device data-sharing consent (gates the optional Google Sheets send only;
+    // does NOT block the test itself).
+    state.meta.consentDataShare = !!(dataShare && dataShare.checked);
+
     // Participant identity (name stored locally only; year of birth, not full DOB).
     state.meta.participantName = (nameInput && nameInput.value.trim()) || '';
     const gender = document.querySelector('input[name="gender"]:checked');
@@ -89,6 +94,7 @@ function wireConsent(hooks) {
   };
 
   consent && consent.addEventListener('change', refresh);
+  dataShare && dataShare.addEventListener('change', refresh);
   onset && onset.addEventListener('change', refresh);
   nameInput && nameInput.addEventListener('input', refresh);
   yobInput && yobInput.addEventListener('input', refresh);

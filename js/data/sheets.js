@@ -100,6 +100,14 @@ export async function sendToGoogleSheet(result, cfg) {
   const gs = cfg && cfg.integrations && cfg.integrations.google_sheets;
   if (!gs || !gs.enabled || !gs.webAppUrl) return false;
 
+  // Require explicit off-device data-sharing consent (checkbox on the consent
+  // screen). Without it we never transmit, even when the integration is enabled.
+  const consented = result && result.meta && result.meta.consentDataShare === true;
+  if (!consented) {
+    console.info('[sheets] skipped: participant did not consent to data sharing');
+    return false;
+  }
+
   const row = buildRow(result, cfg);
   try {
     await fetch(gs.webAppUrl, {

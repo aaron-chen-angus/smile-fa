@@ -148,6 +148,8 @@ function buildMeta() {
     yearOfBirth: state.meta.yearOfBirth ?? null,
     // M03 test-start timestamp (ISO 8601 + local UTC offset); fallback to now.
     M03: state.meta.M03 || localIsoWithOffset(),
+    // Off-device data-sharing consent (gates the optional Google Sheets send).
+    consentDataShare: !!state.meta.consentDataShare,
   };
 }
 

@@ -503,11 +503,63 @@ Per `design.md`, each camera frame flows through:
 
 ### 4.7 Data storage and privacy
 
-- **IndexedDB**, on-device only. No session data is transmitted to any server.
+- **IndexedDB**, on-device by default. In the default configuration no session data is transmitted to any server.
 - **No video or image retention by default.**
 - **Export formats:** session JSON (schema §3.12), a metrics CSV (one row per metric), a time-series CSV, and a printable A4-landscape report via the browser print dialog.
-- **PDPA.** Consent is captured before the camera starts; the participant's name is stored locally only and never transmitted; research exports use a pseudonymous participant code.
+- **PDPA.** Consent is captured before the camera starts; the participant's name is stored locally only; research exports use a pseudonymous participant code.
 - **Research image capture** (one rest still + one peak-smile still) is available only as an explicit, separately consented option.
+- **Optional off-device transmission (Google Sheets).** Disabled by default. When enabled by the deployer (see §4.11), a completed assessment is sent to a Google Sheet **only if** the participant additionally ticks the data-sharing consent box on the consent screen. Both conditions — the deployer's config flag and the participant's consent — must be true before anything leaves the device. The participant's name is excluded from the transmitted row unless `sendParticipantName` is explicitly set; de-identified fields (pseudonymous metrics, composites, quality, gender, year of birth) are sent otherwise. Enabling this is a departure from the on-device default and requires the consent wording to reflect it.
+
+### 4.11 Optional Google Sheets integration
+
+This integration is **off by default** and is intended for supervised research/pilot data collection. It uses a Google Apps Script Web App as the endpoint, so no API keys or credentials are stored in the client.
+
+**Current destination sheet:** https://docs.google.com/spreadsheets/d/1vKsR84I_hgEIY4fAL7YSY7LCcc9QwVaAj_y4M7XeD7M/edit — results are appended to its `Results` tab via the Apps Script Web App configured in `config/integrations.json`.
+
+Configuration lives in `config/integrations.json`:
+
+```json
+{
+  "integrations_version": "int-0.1",
+  "google_sheets": {
+    "enabled": false,
+    "webAppUrl": "",
+    "sendParticipantName": false
+  }
+}
+```
+
+- `enabled` — master switch. When `false`, nothing is ever transmitted.
+- `webAppUrl` — the Apps Script Web App `/exec` URL.
+- `sendParticipantName` — when `false` (recommended), the participant name is omitted from the transmitted row; de-identified fields are still sent. Set `true` only where names in the sheet are separately consented.
+
+**Consent gate.** Even when `enabled` is `true`, a row is sent only when the participant ticks *"I consent to my de-identified results being sent to a secure research spreadsheet"* on the consent screen. This checkbox gates transmission only; it does not block the test.
+
+**Data flow.** After analysis, `js/data/sheets.js` flattens the session result into one flat row (keys matching the sheet header) and POSTs it (`Content-Type: text/plain`, `mode: no-cors`) to the Web App, which appends the row. Failures are logged and never block the result screen.
+
+**Sheet header row (column titles).** These tally with the Data Dictionary (M/Q/C series and per-metric `value`/`L`/`R`/`flag`). The first row of the `Results` tab must be:
+
+```
+submitted_at, M03_timestamp, participant_name, gender, year_of_birth, mode,
+language, M10_symptom_onset, M11_confounders, thresholds_version,
+C01_UFAI, C02_LFAI, C03_SMILE_FAI, C04_lower_upper_ratio, C05_pattern,
+C06_affected_side, C08_nihss4_cv, C09_cpss_face_cv, C10_baseline_z,
+C11_indicator, C12_flags, Q17_quality,
+R02_value, R02_L, R02_R, R02_flag, R03_value, R03_L, R03_R, R03_flag,
+R04_value, R04_L, R04_R, R04_flag, R07_value, R07_L, R07_R, R07_flag,
+R09_value, R09_L, R09_R, R09_flag, R12_value, R12_L, R12_R, R12_flag,
+B01_value, B01_L, B01_R, B01_flag, B02_value, B02_L, B02_R, B02_flag,
+B03_value, B03_L, B03_R, B03_flag, E01_value, E01_L, E01_R, E01_flag,
+E02_value, E02_L, E02_R, E02_flag, E03_value, E03_L, E03_R, E03_flag,
+E05_value, E05_L, E05_R, E05_flag, S01_value, S01_L, S01_R, S01_flag,
+S02_value, S02_L, S02_R, S02_flag, S03_value, S03_L, S03_R, S03_flag,
+S07_value, S07_L, S07_R, S07_flag, S08_value, S08_L, S08_R, S08_flag,
+S13_value, S13_L, S13_R, S13_flag, S14_value, S14_L, S14_R, S14_flag,
+P01_value, P01_L, P01_R, P01_flag, P02_value, P02_L, P02_R, P02_flag,
+N01_value, N01_L, N01_R, N01_flag, N02_value, N02_L, N02_R, N02_flag
+```
+
+**Setup summary.** Create a Google Sheet with a tab named `Results`; add an Apps Script `doPost` Web App that appends rows and auto-writes the header on first run; deploy as a Web App with access set to *Anyone*; paste the `/exec` URL into `config/integrations.json` and set `enabled: true`.
 
 ### 4.8 Browser and device support
 

@@ -17,6 +17,7 @@
   "s1.consentText": "所有处理均在本设备上完成，视频和图像不会离开浏览器。",
   "s1.symptoms": "症状与病史",
   "s1.agree": "我已理解并同意（PDPA）",
+  "s1.dataShare": "我同意将我的去标识化结果发送至安全的研究电子表格",
   "s1.name": "全名",
   "s1.namePlaceholder": "您的全名",
   "s1.gender": "性别",
