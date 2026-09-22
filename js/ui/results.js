@@ -63,7 +63,7 @@ export function renderPublicResult(result) {
 }
 
 /** Colour per indicator state (matches CSS tokens). */
-const STATE_COLOR = { green: '#34D399', amber: '#FBBF24', red: '#EF4444', unable: '#9FB4CC' };
+const STATE_COLOR = { green: '#00e676', amber: '#ffcc00', red: '#ff3333', unable: '#6b7a99' };
 
 /**
  * Animate the SMILE-FAI score ring (0–100, higher = more asymmetry).
@@ -80,7 +80,7 @@ export function renderScoreRing(score, stateKey) {
     const circ = 2 * Math.PI * r;
     fill.style.strokeDasharray = String(circ);
     fill.style.strokeDashoffset = String(circ * (1 - s / 100));
-    fill.style.stroke = STATE_COLOR[stateKey] || '#29B6F6';
+    fill.style.stroke = STATE_COLOR[stateKey] || '#00e5ff';
   }
 }
 
@@ -160,39 +160,39 @@ export function renderInterpretation(result) {
 export function renderFaceDiagram(side, pattern) {
   const host = document.getElementById('face-diagram');
   if (!host) return;
-  const AMBER = 'rgba(251, 191, 36, 0.40)'; // affected hemiface highlight
-  const CLEAR = 'rgba(56, 189, 248, 0.06)';
+  const AMBER = 'rgba(255, 107, 0, 0.40)'; // affected hemiface highlight (orange emphasis)
+  const CLEAR = 'rgba(0, 229, 255, 0.06)';
   const affL = side === 'L';
   const affR = side === 'R';
   // Un-mirrored diagram: patient LEFT on the image RIGHT, patient RIGHT on image LEFT.
   // "Weaker side →" arrow points toward the highlighted hemiface.
   const weakerLabel = (affL || affR)
     ? `<g>
-         <text x="100" y="30" fill="#FBBF24" font-size="13" font-weight="700" text-anchor="middle">Weaker side ${affL ? '→' : '←'}</text>
+         <text x="100" y="30" fill="#ff6b00" font-size="13" font-weight="700" text-anchor="middle">Weaker side ${affL ? '→' : '←'}</text>
        </g>`
     : '';
   host.innerHTML = `
     <svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" role="img" aria-label="Affected region">
       <defs>
         <linearGradient id="faceFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#12273F"/><stop offset="1" stop-color="#0A1728"/>
+          <stop offset="0" stop-color="#111d35"/><stop offset="1" stop-color="#0a0f1e"/>
         </linearGradient>
       </defs>
       ${weakerLabel}
-      <ellipse cx="100" cy="128" rx="78" ry="104" fill="url(#faceFill)" stroke="#223B5C" stroke-width="2"/>
+      <ellipse cx="100" cy="128" rx="78" ry="104" fill="url(#faceFill)" stroke="rgba(0,229,255,0.35)" stroke-width="2"/>
       <!-- Patient RIGHT half = image LEFT -->
       <path d="M100 26 A78 104 0 0 0 100 232 Z" fill="${affR ? AMBER : CLEAR}"/>
       <!-- Patient LEFT half = image RIGHT -->
       <path d="M100 26 A78 104 0 0 1 100 232 Z" fill="${affL ? AMBER : CLEAR}"/>
-      <line x1="100" y1="26" x2="100" y2="232" stroke="#223B5C" stroke-dasharray="3 5"/>
-      <circle cx="66" cy="104" r="6" fill="#EAF2FB"/>
-      <circle cx="134" cy="104" r="6" fill="#EAF2FB"/>
-      <path d="M52 84 q14 -8 28 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M120 84 q14 -8 28 0" fill="none" stroke="#7d94b3" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M68 172 q32 24 64 0" fill="none" stroke="#EAF2FB" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="100" y1="26" x2="100" y2="232" stroke="rgba(0,229,255,0.35)" stroke-dasharray="3 5"/>
+      <circle cx="66" cy="104" r="6" fill="#e8eaf0"/>
+      <circle cx="134" cy="104" r="6" fill="#e8eaf0"/>
+      <path d="M52 84 q14 -8 28 0" fill="none" stroke="#6b7a99" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M120 84 q14 -8 28 0" fill="none" stroke="#6b7a99" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M68 172 q32 24 64 0" fill="none" stroke="#e8eaf0" stroke-width="3.5" stroke-linecap="round"/>
       <!-- R/L labels anchored just outside the face outline -->
-      <text x="14" y="132" fill="#93A9C4" font-size="15" font-weight="700">R</text>
-      <text x="176" y="132" fill="#93A9C4" font-size="15" font-weight="700">L</text>
+      <text x="14" y="132" fill="#6b7a99" font-size="15" font-weight="700">R</text>
+      <text x="176" y="132" fill="#6b7a99" font-size="15" font-weight="700">L</text>
     </svg>
   `;
 }
