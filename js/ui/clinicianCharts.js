@@ -19,14 +19,14 @@ import { EXPRESSIONS } from '../vision/emotion.js';
 /** Phase order for band shading. */
 const PHASE_ORDER = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9'];
 
-/** Per-emotion colours (item 12/13). */
+/** Per-emotion colours (item 12/13) — TRON palette. */
 const EMOTION_COLORS = {
-  neutral: '#9FB4CC', happy: '#FBBF24', sad: '#3B82F6', angry: '#EF4444',
-  fearful: '#A78BFA', disgusted: '#34D399', surprised: '#FB923C',
+  neutral: '#6b7a99', happy: '#ffcc00', sad: '#3ba7ff', angry: '#ff3333',
+  fearful: '#b98bff', disgusted: '#00e676', surprised: '#ff6b00',
 };
 
-const LINE_L = '#29B6F6'; // cyan = L
-const LINE_R = '#FBBF24'; // amber = R
+const LINE_L = '#00e5ff'; // neon cyan = L
+const LINE_R = '#ff6b00'; // neon orange = R
 
 /** Track live chart instances so we can destroy on re-render. */
 const instances = {};
@@ -61,8 +61,8 @@ function phaseBandPlugin(Chart, bands) {
         ctx.save();
         ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)';
         ctx.fillRect(x0, chartArea.top, x1 - x0, chartArea.bottom - chartArea.top);
-        ctx.fillStyle = '#93A9C4';
-        ctx.font = '10px system-ui, sans-serif';
+        ctx.fillStyle = '#6b7a99';
+        ctx.font = '10px "Exo 2", system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(b.phase, (x0 + x1) / 2, chartArea.top + 11);
         ctx.restore();
@@ -121,10 +121,10 @@ function drawTimeSeries(Chart, buffers) {
       options: {
         animation: false, responsive: true, maintainAspectRatio: false,
         scales: {
-          x: { type: 'linear', title: { display: true, text: title + '  (seconds)', color: '#93A9C4' }, ticks: { color: '#93A9C4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-          y: { title: { display: true, text: 'mm', color: '#93A9C4' }, ticks: { color: '#93A9C4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          x: { type: 'linear', title: { display: true, text: title + '  (seconds)', color: '#6b7a99' }, ticks: { color: '#6b7a99' }, grid: { color: 'rgba(0,229,255,0.07)' } },
+          y: { title: { display: true, text: 'mm', color: '#6b7a99' }, ticks: { color: '#6b7a99' }, grid: { color: 'rgba(0,229,255,0.07)' } },
         },
-        plugins: { legend: { labels: { color: '#EAF2FB', boxWidth: 12 } } },
+        plugins: { legend: { labels: { color: '#e8eaf0', boxWidth: 12 } } },
       },
       plugins: [phaseBandPlugin(Chart, bands)],
     });
@@ -165,11 +165,11 @@ function drawEmotionCharts(Chart, emotion) {
         animation: false, responsive: true, maintainAspectRatio: false,
         indexAxis: 'x',
         scales: {
-          x: { stacked: true, ticks: { color: '#93A9C4' }, grid: { display: false } },
-          y: { stacked: true, max: 100, ticks: { color: '#93A9C4', callback: (v) => v + '%' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          x: { stacked: true, ticks: { color: '#6b7a99' }, grid: { display: false } },
+          y: { stacked: true, max: 100, ticks: { color: '#6b7a99', callback: (v) => v + '%' }, grid: { color: 'rgba(0,229,255,0.07)' } },
         },
         plugins: {
-          legend: { labels: { color: '#EAF2FB', boxWidth: 12 } },
+          legend: { labels: { color: '#e8eaf0', boxWidth: 12 } },
           // Inline segment labels when wider than 8% (item 12).
           segmentLabels: {},
         },
@@ -185,8 +185,8 @@ function drawEmotionCharts(Chart, emotion) {
               if (val > 8) {
                 const { x, y } = bar.tooltipPosition();
                 ctx.save();
-                ctx.fillStyle = '#0A1728';
-                ctx.font = '10px system-ui, sans-serif';
+                ctx.fillStyle = '#050810';
+                ctx.font = '10px "Exo 2", system-ui, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(`${ds.label} ${Math.round(val)}%`, x, y);
@@ -227,10 +227,10 @@ function drawEmotionCharts(Chart, emotion) {
       options: {
         animation: false, responsive: true, maintainAspectRatio: false,
         scales: {
-          x: { type: 'linear', title: { display: true, text: 'seconds', color: '#93A9C4' }, ticks: { color: '#93A9C4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-          y: { min: 0, max: 1, ticks: { color: '#93A9C4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          x: { type: 'linear', title: { display: true, text: 'seconds', color: '#6b7a99' }, ticks: { color: '#6b7a99' }, grid: { color: 'rgba(0,229,255,0.07)' } },
+          y: { min: 0, max: 1, ticks: { color: '#6b7a99' }, grid: { color: 'rgba(0,229,255,0.07)' } },
         },
-        plugins: { legend: { labels: { color: '#EAF2FB', boxWidth: 12 } } },
+        plugins: { legend: { labels: { color: '#e8eaf0', boxWidth: 12 } } },
       },
       plugins: [phaseBandPlugin(Chart, bands)],
     });
