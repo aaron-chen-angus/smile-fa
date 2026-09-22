@@ -11,7 +11,7 @@
 import { loadChartJs } from '../loader.js';
 import { EXPRESSIONS } from '../vision/emotion.js';
 
-const COLORS = ['#9FB4CC', '#34D399', '#60A5FA', '#EF4444', '#A78BFA', '#FBBF24', '#F472B6'];
+const COLORS = ['#6b7a99', '#00e676', '#3ba7ff', '#ff3333', '#b98bff', '#ffcc00', '#ff6b00'];
 const WINDOW_MS = 20000;
 
 export class LiveCharts {
@@ -56,9 +56,9 @@ export class LiveCharts {
         responsive: true,
         scales: {
           x: { type: 'linear', display: false },
-          y: { min: 0, max: 1, ticks: { color: '#9FB4CC' } },
+          y: { min: 0, max: 1, ticks: { color: '#6b7a99' } },
         },
-        plugins: { legend: { labels: { color: '#9FB4CC', boxWidth: 10 } } },
+        plugins: { legend: { labels: { color: '#6b7a99', boxWidth: 10 } } },
       },
     });
   }
